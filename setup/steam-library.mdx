@@ -1,0 +1,115 @@
+---
+title: "Steam Library Detection and Path Configuration"
+sidebarTitle: "Steam Library"
+description: "Configure Crowbar's Steam installation path and library folders so the app can auto-detect installed games and populate tool paths automatically."
+---
+
+Crowbar can read Steam's installation layout to locate your games and their SDK tools without you having to type every path by hand. When you register one or more Steam library folders, Crowbar learns where each game lives on disk and can substitute short **library macros** (like `<library1>`) into game profile paths. This keeps your profiles portable across machines and prevents broken paths if you ever move a Steam library to a different drive.
+
+## Steam Executable Path
+
+Crowbar stores the path to `Steam.exe` so it can locate the primary Steam installation. The default value is:
+
+```text
+C:\Program Files (x86)\Steam\Steam.exe
+```
+
+If you installed Steam to a non-default location, you must update this setting. Click the **Browse...** button next to the Steam executable field in the **Set Up Games** tab to navigate to the correct `Steam.exe`.
+
+<Note>
+  The Steam executable path is stored in the `SteamAppPathFileName` application setting. It is also counted in each library entry's **Use Count** column if the path begins with a library macro, so you can see at a glance how many paths depend on each library entry.
+</Note>
+
+## Steam Library Paths
+
+Steam can distribute your game installations across several drives or folders — for example, one library on your system drive and another on a secondary SSD. Each such folder is a **Steam library**. Crowbar maintains its own list of these folders, independent of Steam's own configuration, so you can register the exact locations you want Crowbar to know about.
+
+Each library entry in Crowbar has three columns:
+
+| Column | Description |
+|---|---|
+| **Macro** | A short placeholder token like `<library1>`, `<library2>`, etc. When set in a game profile path, Crowbar substitutes the real library folder at runtime, keeping all paths valid even when drives change. |
+| **Library Path** | The full path to the Steam library root folder, e.g. `C:\Program Files (x86)\Steam` or `D:\SteamLibrary`. |
+| **Use Count** | The number of path fields across all game profiles (plus the Steam executable path) that currently start with this library's macro. A count of `0` means no profiles reference this library yet. |
+
+### Common Steam Library Locations
+
+| Location | Typical path |
+|---|---|
+| Windows primary (default Steam install) | `C:\Program Files (x86)\Steam` |
+| Windows secondary library drive | `D:\SteamLibrary` |
+| Windows secondary library, alternate name | `E:\Games\Steam` |
+
+The primary library is always under the Steam install folder. Secondary libraries are wherever you directed Steam when you added them — check **Steam → Settings → Downloads → Steam Library Folders** to see the list Steam itself knows about.
+
+## Configuring Steam Library Paths in Crowbar
+
+<Steps>
+  <Step title="Open the Set Up Games tab">
+    In Crowbar, click the **Set Up Games** tab. The Steam settings panel is in the lower section of this tab, below the game profile fields.
+  </Step>
+
+  <Step title="Set the path to Steam.exe">
+    Locate the **Steam App** field. Click **Browse...** and navigate to your `Steam.exe`. On most Windows systems this is:
+
+    ```text
+    C:\Program Files (x86)\Steam\Steam.exe
+    ```
+
+    If your Steam install is elsewhere (e.g. on a secondary drive), browse to that location instead.
+  </Step>
+
+  <Step title="Review the default library entry">
+    Crowbar automatically creates one library entry (`<library1>`) pointing to `C:\Program Files (x86)\Steam`. If your primary Steam library is at a different path, click in the **Library Path** cell of that row and type the correct path, or click the **Browse...** button in that row to navigate to it.
+  </Step>
+
+  <Step title="Add secondary library paths">
+    If you have additional Steam libraries on other drives, click **Add** to create a new library entry. Crowbar automatically assigns the next macro (`<library2>`, `<library3>`, and so on). Click **Browse...** in the new row and navigate to the root of that Steam library folder (e.g. `D:\SteamLibrary`).
+
+    ```text
+    Example multi-library setup:
+    <library1>  →  C:\Program Files (x86)\Steam
+    <library2>  →  D:\SteamLibrary
+    <library3>  →  E:\Games\Steam
+    ```
+  </Step>
+
+  <Step title="Apply macros to game profiles">
+    Once library paths are configured, right-click any row in the library table to access macro commands:
+
+    - **Set Macro in Selected Game Setup** — replaces the matching literal path prefix with the macro in the currently active game profile.
+    - **Set Macro in All Game Setups** — applies the replacement to every game profile at once.
+    - **Clear Macro in Selected/All Game Setups** — expands macros back to their full literal paths.
+    - **Change to This Macro in Selected/All Game Setups** — replaces whatever macro is currently in a path with this library's macro.
+
+    After applying macros, your game profile paths look like:
+
+    ```text
+    Before: C:\Program Files (x86)\Steam\steamapps\common\left 4 dead 2\bin\studiomdl.exe
+    After:  <library1>\steamapps\common\left 4 dead 2\bin\studiomdl.exe
+    ```
+  </Step>
+
+  <Step title="Verify Use Count">
+    Check the **Use Count** column. Each library entry should show a non-zero count if game profiles reference it. A count of `0` after applying macros suggests the library path doesn't match any profile paths — double-check that the library path is the correct root folder.
+  </Step>
+</Steps>
+
+## Removing a Library Entry
+
+Click **Delete** to remove the last library entry in the list. Crowbar enforces two constraints:
+
+- The first library entry (`<library1>`) cannot be deleted — at least one must always exist.
+- An entry can only be deleted if its **Use Count** is `0`. Remove or update any game profile paths that reference the macro before deleting the library entry.
+
+<Warning>
+  Deleting a library entry while game profiles still reference its macro will leave those paths with an unresolved macro prefix. Crowbar will be unable to find those files at runtime until you update the affected paths.
+</Warning>
+
+## Portable Profiles and Macro Substitution
+
+Library macros make game profiles **portable**. If you back up your Crowbar settings XML file and restore it on another machine — or after reinstalling Windows — you only need to update the library paths in the Steam Library table. All game profile paths that use macros will resolve correctly without editing every profile individually.
+
+<Tip>
+  If Crowbar cannot find a game automatically, or if you work with a non-Steam installation (such as a standalone Source SDK or a custom game build), you can always type or browse to the exact absolute path in any game profile field without using macros at all. See [Game Setup](/setup/game-setup) for a full walkthrough of configuring a game profile manually.
+</Tip>

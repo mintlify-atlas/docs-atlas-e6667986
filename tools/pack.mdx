@@ -1,0 +1,78 @@
+---
+title: "Pack Folders into VPK Archives with Crowbar"
+sidebarTitle: "Pack"
+description: "Create VPK packages from local folders using Crowbar's Pack tab. Wraps Valve's vpk.exe tool and supports both single-file and split-archive output."
+---
+
+Crowbar's Pack tab creates VPK archives (or Garry's Mod GMA addons) from a local folder by invoking the packer executable configured in the selected game profile. Crowbar sets the correct working directory for the packer, captures its output, and then moves the resulting package file to the output location you choose. Both single-file VPK output and multi-file (split) VPK output are supported.
+
+<Note>
+  The Pack tab requires a game profile with a valid **Packer path** (`vpk.exe` for Source games, `gmad.exe` for Garry's Mod) and a valid game path. Configure these in the **Set Up Games** tab before using Pack. See [Game Setup](/setup/game-setup) for details.
+</Note>
+
+## Input Options
+
+The input mode dropdown maps to the `PackInputOptions` enum:
+
+| Mode | Description |
+|---|---|
+| **Folder** | Pack the contents of a single folder into one VPK archive. The folder name becomes the package name. |
+| **Parent of child folders** | Pack each direct subdirectory of the selected parent as a separate VPK archive in one batch operation. |
+
+<Tip>
+  Before packing, organize your files into the correct Source engine folder structure inside the input folder: `materials/`, `models/`, `sound/`, `scripts/`, etc. The VPK will preserve this structure, and the game's file system will mount it correctly.
+</Tip>
+
+## Game Setup Selector
+
+The **Game setup** dropdown selects which game profile's `PackerPathFileName` (`vpk.exe` or `gmad.exe`) Crowbar will invoke. The profile also supplies the game path used for validation checks before the pack runs.
+
+## Output Path Options
+
+The output path dropdown maps to the `PackOutputPathOptions` enum:
+
+| Option | Description |
+|---|---|
+| **Work folder** | Move the finished package file to the work folder path you specify. |
+| **Parent folder** | Leave the finished package in the same directory as the input folder (the default for most workflows). |
+
+## Pack Options
+
+### Crowbar Options
+
+| Option | Settings Key | Description |
+|---|---|---|
+| Log file | `PackLogFileIsChecked` | Write a `pack-log.txt` file recording the packer's output next to the input folder. |
+
+### Packer Options
+
+| Option | Settings Key | Description |
+|---|---|---|
+| Multi-file VPK | `PackOptionMultiFileVpkIsChecked` | Create a split-archive VPK with a `_dir.vpk` directory file and numbered `_000.vpk`, `_001.vpk` data files. Crowbar generates an internal file list and passes it to `vpk.exe -v -M a`. |
+| Ignore whitelist warnings | `PackOptionIgnoreWhitelistWarningsIsChecked` | Pass `-warninvalid` to `gmad.exe` to suppress warnings about files that are not on Garry's Mod's allowed file list. GMA packing only. |
+| Direct packer options | `PackOptionsText` | Free-text field for any additional flags to pass to `vpk.exe` or `gmad.exe` before the input folder argument. |
+
+### GMA-Specific Fields (Garry's Mod)
+
+When the selected game profile uses `gmad.exe`, two additional fields are available:
+
+| Field | Settings Key | Description |
+|---|---|---|
+| GMA title | `PackGmaTitle` | The display name of the addon as it will appear in the Garry's Mod workshop and addon browser. |
+| GMA item tags | `PackGmaItemTags` | One or more category tags (e.g. `map`, `model`, `weapon`) written into the addon's `addon.json` metadata file. |
+
+## How Crowbar Invokes the Packer
+
+For standard single-file VPK output, Crowbar changes the working directory to the **parent** of the input folder, then runs:
+
+```shell
+vpk.exe "<folder_name>"
+```
+
+For multi-file VPK output (`-M` mode), Crowbar first writes a `filelist.txt` containing relative paths of every file inside the input folder, then runs:
+
+```shell
+vpk.exe -v -M a "<folder_name>" @..\filelist.txt
+```
+
+After the packer exits, Crowbar moves the resulting `.vpk` file (or `_dir.vpk` and all `_???.vpk` data files for multi-file output) to the configured output path and deletes any temporary list files it created.

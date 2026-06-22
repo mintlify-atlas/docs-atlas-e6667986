@@ -1,0 +1,174 @@
+---
+title: "Crowbar Troubleshooting and Common Errors"
+sidebarTitle: "Troubleshooting"
+description: "Solutions to common Crowbar errors including invalid MDL headers, missing companion files, compiler path issues, and Steam Workshop authentication problems."
+---
+
+Most Crowbar issues fall into a handful of categories: file path errors, missing companion files, unsupported or misidentified MDL versions, and Steam or game-tool configuration problems. The sections below address the errors that appear most frequently, drawn from the status codes in Crowbar's source (`StatusMessage` and `FilesFoundFlags` enums) as well as common Source engine modding pitfalls.
+
+<AccordionGroup>
+
+  <Accordion title="Error: Invalid MDL file ID (ErrorInvalidMdlFileId)">
+    **What it means:** The first four bytes of the `.mdl` file do not match the expected magic string (`IDST` for Source models, `IDPO`/`IDSQ` for GoldSource). Crowbar refuses to parse the file further.
+
+    **Common causes:**
+    - You pointed Crowbar at the wrong file (e.g., a `.vtx` or `.vvd` instead of the `.mdl`).
+    - The file was corrupted during download or extraction — partial downloads can pass a size check but contain garbage bytes at the start.
+    - The file is from an engine variant or mod that uses a non-standard magic string.
+
+    **How to fix:**
+    <Steps>
+      <Step title="Verify the file is actually an MDL">
+        Open it in a hex editor and check the first 4 bytes. A valid Source MDL starts with `49 44 53 54` (`IDST`). GoldSource models start with `49 44 53 54` (v10) or may differ for v06.
+      </Step>
+      <Step title="Re-download or re-extract">
+        Delete the file and obtain a fresh copy from the original source — Steam game files, a VPK archive, or a trusted download.
+      </Step>
+      <Step title="Test in HLMV">
+        Try opening the file in Valve's Half-Life Model Viewer or a third-party viewer. If it refuses to load there too, the file itself is the problem.
+      </Step>
+      <Step title="Try the version override">
+        If you are certain the file is valid but unusual, set the **Override MDL version** dropdown on the Decompile tab to the version you expect the file to be.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Error: Invalid internal MDL file size (ErrorInvalidInternalMdlFileSize)">
+    **What it means:** The file size value embedded in the MDL header does not match the actual size of the file on disk. Crowbar treats this as a sign of corruption.
+
+    **Common causes:**
+    - The file download was interrupted, leaving a truncated file.
+    - The file was copied from a network drive or slow USB device that dropped bytes.
+    - The MDL was manually edited and the embedded size field was not updated to match.
+
+    **How to fix:**
+    <Steps>
+      <Step title="Check file size">
+        Compare the file size reported by Windows Explorer against the size stored at offset `0x08` in the MDL header (a 32-bit integer, little-endian). They should match.
+      </Step>
+      <Step title="Re-obtain the file">
+        Re-download or re-extract the model. For Steam games, use **Steam → Properties → Local Files → Verify integrity of game files** to restore the originals.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Required companion file not found (.ani / .vtx / .vvd)">
+    **What it means:** Crowbar found the `.mdl` but could not locate one of the companion files it needs to fully decompile a Source engine model. The specific error code tells you which file is missing:
+
+    - `ErrorRequiredAniFileNotFound` — the `.ani` animation block file is absent
+    - `ErrorRequiredVtxFileNotFound` — the `.vtx` hardware topology file is absent
+    - `ErrorRequiredVvdFileNotFound` — the `.vvd` vertex data file is absent
+    - `ErrorRequiredSequenceGroupMdlFileNotFound` — a GoldSource sequence-group `.mdl` is absent
+    - `ErrorRequiredTextureMdlFileNotFound` — a GoldSource texture `.mdl` is absent
+
+    **How to fix:**
+    <Steps>
+      <Step title="Ensure all files are in the same folder">
+        Place `model.mdl`, `model.vvd`, `model.dx90.vtx`, and (if applicable) `model.phy` and `model.ani` in the same directory before decompiling.
+      </Step>
+      <Step title="Use Crowbar's Unpack tab">
+        If the model came from a VPK, use the **Unpack** tab to extract the entire `models/` subtree. This guarantees all companion files land together.
+      </Step>
+      <Step title="Check for alternate VTX names">
+        Some games ship `.dx80.vtx` or `.sw.vtx` alongside the `.dx90.vtx`. Crowbar checks for all known variants; if none are found, it reports `ErrorRequiredVtxFileNotFound`.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Compiler not found or StudioMDL errors">
+    **What it means:** Crowbar cannot find `studiomdl.exe` at the path configured in the active game profile, or StudioMDL exits with a non-zero error code during compilation.
+
+    **How to fix:**
+    <Steps>
+      <Step title="Check the compiler path in the game profile">
+        Go to the **Set Up Games** tab, select your game profile, and verify that the **Compiler path** field points to a valid `studiomdl.exe`. For Source SDK games this is typically under `<SteamLibrary>\steamapps\common\<Game>\bin\studiomdl.exe`.
+      </Step>
+      <Step title="Install the game's developer tools">
+        Many games require you to install a separate SDK or tools package. In Steam, search for "[Game Name] - SDK" or "[Game Name] Authoring Tools" in your library.
+      </Step>
+      <Step title="Read the compile output">
+        Crowbar echoes StudioMDL's stdout/stderr to the output panel. Look for lines beginning with `ERROR:` — they usually identify the exact QC command or mesh that is causing problems.
+      </Step>
+      <Step title="Check the -nop4 and -verbose flags">
+        Under **Compile → Options**, make sure **No P4** (`-nop4`) is checked. Without it, StudioMDL may hang trying to contact a Perforce server.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Model decompiles but animations look wrong">
+    Animations playing in the wrong direction, at the wrong speed, or with bones snapping to incorrect positions are almost always a version mismatch.
+
+    **How to fix:**
+    <Steps>
+      <Step title="Use the version override">
+        On the **Decompile** tab, change **Override MDL version** to the version that matches the game the model came from. Some games share an MDL version number but with subtle format differences (CS:GO v49, for example, changed the hitbox data layout).
+      </Step>
+      <Step title="Check the animation subfolder option">
+        Enable **Place animations in subfolder** so that animation SMD files are written to an `anims/` subdirectory. Some older workflows expect them there.
+      </Step>
+      <Step title="Verify the .ani companion file">
+        If the model uses an external `.ani` block, Crowbar must read that file in addition to the `.mdl`. Confirm the `.ani` is present in the same folder.
+      </Step>
+    </Steps>
+
+    <Note>
+      Animation SMD files from Crowbar are oriented correctly. MDL Decompiler (a different tool) is known to output animation SMD files rotated 90 degrees — if you are comparing results, this is expected.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Workshop publish fails">
+    **What it means:** Crowbar cannot authenticate with Steam or submit the item to the Workshop.
+
+    **Common causes and fixes:**
+
+    - **Steam is not running** — Start Steam and sign in before attempting to publish.
+    - **Not logged into the correct account** — You must be signed in to the account that owns the game you are publishing to.
+    - **Game not owned** — Workshop publishing requires you to own the target game on the account currently logged into Steam.
+    - **SteamPipe not accessible** — Some antivirus products block the Steam API DLL that Crowbar uses. Add Crowbar's installation folder to your AV exclusions.
+    - **Session token expired** — Close and reopen Steam, then retry.
+  </Accordion>
+
+  <Accordion title="UI widgets don't resize correctly at high DPI">
+    **What it means:** When Windows display scaling is set above 100%, some controls in Crowbar's Windows Forms interface may overlap, clip, or fail to fill their containers correctly.
+
+    **Workarounds:**
+    <Steps>
+      <Step title="Reset display scaling to 100%">
+        In Windows **Display settings**, set the scaling to 100% (96 DPI) while using Crowbar, then restore your preferred scaling afterwards.
+      </Step>
+      <Step title="Override DPI scaling per-application">
+        Right-click `Crowbar.exe` → **Properties** → **Compatibility** tab → **Change high DPI settings** → enable **Override high DPI scaling behavior** and set it to **Application**.
+      </Step>
+    </Steps>
+
+    <Note>
+      This is a known limitation of Windows Forms scaling behaviour and affects many legacy desktop applications. It is not specific to Crowbar.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Building from source: Debug/Release x86 errors">
+    **What it means:** The Crowbar solution must be compiled as **x86** (32-bit). Attempting to build with **Any CPU** or **x64** will produce linker errors or runtime failures because Crowbar depends on 32-bit native DLLs (Steam API, LZMA, etc.).
+
+    **How to fix:**
+    <Steps>
+      <Step title="Set the solution platform to x86">
+        In Visual Studio, open the **Configuration Manager** (Build menu → Configuration Manager) and change the **Active solution platform** from **Any CPU** to **x86** for both the Debug and Release configurations.
+      </Step>
+      <Step title="Verify each project's platform setting">
+        In the Configuration Manager grid, ensure every project row shows **x86** under the Platform column. Some projects may revert to **Any CPU** independently.
+      </Step>
+      <Step title="Clean and rebuild">
+        Run **Build → Clean Solution**, then **Build → Rebuild Solution** to ensure no stale Any-CPU objects are linked in.
+      </Step>
+    </Steps>
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+## Getting Further Help
+
+<Note>
+  The official community for Crowbar support and bug reports is the **Crowbar Tool** Steam group. You can find it at [https://steamcommunity.com/groups/CrowbarTool](https://steamcommunity.com/groups/CrowbarTool). Before posting, check the group announcements and discussions — your issue may already have a known solution or workaround documented there.
+</Note>

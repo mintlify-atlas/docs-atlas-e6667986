@@ -1,0 +1,74 @@
+---
+title: "Download Steam Workshop Items with Crowbar"
+sidebarTitle: "Download"
+description: "Use Crowbar's Download tab to fetch Steam Workshop addons and content by item ID or link. Items save to your configured output folder for extraction."
+---
+
+The Download tab lets you retrieve any publicly accessible Steam Workshop item directly from within Crowbar. It uses Steam's API to locate and download the item's content by Workshop item ID or by pasting a full Workshop URL. Downloaded content arrives as a `.vpk`, `.gma`, or other archive file that you can then open with Crowbar's Unpack tab.
+
+## Input
+
+You can supply either a bare numeric item ID or a full Steam Workshop URL. Both formats are accepted in the same input field.
+
+| Format | Example |
+|--------|---------|
+| Numeric ID | `2975098073` |
+| Full URL | `https://steamcommunity.com/sharedfiles/filedetails/?id=2975098073` |
+
+Crowbar parses the `id=` query parameter out of any URL you paste, so you can copy the address directly from your browser's address bar without editing it first.
+
+<Tip>
+  Copy the full URL directly from your browser while viewing the Workshop item page — Crowbar automatically extracts the numeric ID from the `?id=` parameter, so there is no need to isolate the number yourself.
+</Tip>
+
+## Output Path Options
+
+Choose where downloaded files are saved using the output path selector. The available options come from the `DownloadOutputPathOptions` setting.
+
+<CardGroup cols={2}>
+  <Card title="Documents Folder" icon="folder">
+    Saves the downloaded item to your Windows Documents folder. This is the default and requires no additional configuration.
+  </Card>
+  <Card title="Work Folder" icon="folder-open">
+    Saves the downloaded item to a custom work folder path you specify. Use the Browse button to select any folder on your system.
+  </Card>
+</CardGroup>
+
+## File Naming Options
+
+Crowbar provides several optional naming adjustments that are applied to the output file before it is saved:
+
+- **Use item ID** — prepends or appends the Workshop item's numeric ID to the filename.
+- **Prepend item title** — inserts the item's Workshop title at the start of the filename.
+- **Append update date/time** — appends the item's last-updated timestamp to the filename.
+- **Replace spaces with underscores** — substitutes every space character in the filename with an underscore.
+- **Convert to expected file or folder** — reformats the downloaded content into the file or folder structure that the target game expects.
+
+Click **Use Defaults** to reset all naming options to their recommended values (all options enabled).
+
+## How to Download a Workshop Item
+
+<Steps>
+  <Step title="Find the Workshop item ID">
+    Open the item's page on the Steam Community Workshop. The numeric ID appears in the URL after `?id=`, for example:
+    ```text
+    https://steamcommunity.com/sharedfiles/filedetails/?id=123456789
+    ```
+  </Step>
+  <Step title="Paste the ID or URL into Crowbar">
+    Switch to Crowbar's **Download** tab and paste either the full URL or just the numeric ID into the item input field.
+  </Step>
+  <Step title="Select the output folder">
+    Use the output path dropdown to choose **Documents folder** or **Work folder**. If you chose Work folder, enter or browse to the desired destination path.
+  </Step>
+  <Step title="Click Download">
+    Click the **Download** button. Crowbar contacts Steam's Workshop API, retrieves the content file, and saves it to your chosen output folder. A progress bar and log area show the transfer status.
+  </Step>
+  <Step title="Unpack the downloaded file">
+    Once the download completes, click **Use in Unpack** to send the file path directly to the Unpack tab, or open the [Unpack tab](/tools/unpack) manually to extract the `.vpk` or other archive.
+  </Step>
+</Steps>
+
+<Note>
+  Steam must be running and you must be logged in to your Steam account for Workshop downloads to work. If Crowbar cannot connect to Steam it will report a connection failure in the log. You also need to own the game associated with the Workshop item — attempting to download an item for an unowned game will result in an error.
+</Note>

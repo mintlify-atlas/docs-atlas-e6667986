@@ -1,0 +1,88 @@
+---
+title: "Compile QC Scripts into MDL Models with Crowbar"
+sidebarTitle: "Compile"
+description: "Run Valve's StudioMDL compiler through Crowbar's Compile tab. Configure output paths, compiler flags, and game profiles to build MDL model files from QC source."
+---
+
+Crowbar's Compile tab is a front-end wrapper around Valve's `studiomdl.exe` compiler. Rather than launching a batch script, Crowbar sets the correct working directory, passes the `-game` flag pointing at the selected game profile's folder, forwards any extra options you specify, captures all compiler output in real time, and then moves the resulting `.mdl` (and companion `.vtx`, `.vvd`, `.phy`, `.ani`) files to the output path you choose. Both GoldSource and Source engine games are supported.
+
+## Input Options
+
+The input mode dropdown (maps to `InputOptions`) controls how Crowbar locates QC files to compile:
+
+| Mode | Description |
+|---|---|
+| **File** | Compile a single `.qc` file specified in the input path field. |
+| **Folder** | Compile every `.qc` file found directly in the selected folder. |
+| **Folder and subfolders** | Recursively compile every `.qc` file in the folder tree. |
+
+## Game Setup Selector
+
+The **Game setup** dropdown selects which configured game profile to use. Crowbar reads the profile's `CompilerPathFileName` to locate `studiomdl.exe` and its `GamePathFileName` to supply the `-game` argument. Both values must be valid before a compile can start.
+
+<Note>
+  The correct `studiomdl.exe` is game-specific — using Half-Life 2's compiler to compile a Team Fortress 2 model (or vice versa) will produce incorrect results or fail outright. Configure each game profile in the **Set Up Games** tab. See [Game Setup](/setup/game-setup) for details.
+</Note>
+
+## Output Path Options
+
+The output path dropdown maps to the `CompileOutputPathOptions` enum:
+
+| Option | Description |
+|---|---|
+| **Game's "models" folder** (default) | Place compiled files in the `models/` subdirectory of the selected game's folder. |
+| **Work folder** | Move compiled files to the work folder path you specify. |
+| **Subfolder (of QC input)** | Create a subfolder relative to the `.qc` file's location using the subfolder name you provide. |
+
+## Compiler Options
+
+### Crowbar-managed Options
+
+These checkboxes are managed by Crowbar itself and appear in the `InitCrowbarOptions()` section of the UI:
+
+| Option | Settings Key | Description |
+|---|---|---|
+| GoldSource log file | `CompileGoldSourceLogFileIsChecked` | Save the full compiler stdout/stderr output to a `<modelname> compile-log.txt` file next to the `.qc` (GoldSource engine only). |
+| Source engine log file | `CompileSourceLogFileIsChecked` | Same as above for Source engine profiles. |
+
+### Compiler Pass-through Options
+
+These are passed directly to `studiomdl.exe` and appear in `InitCompilerOptions()`:
+
+| Option | Settings Key | Description |
+|---|---|---|
+| Define bones | `CompileOptionDefineBonesIsChecked` | Capture `$definebone` lines printed by the compiler and process them after compilation. Source engine only. |
+| Create define bones QCI | `CompileOptionDefineBonesCreateFileIsChecked` | Write the captured `$definebone` lines into a `.qci` file. |
+| Define bones QCI filename | `CompileOptionDefineBonesQciFileName` | The filename (without path) to use for the generated `.qci` file. |
+| Overwrite define bones QCI | `CompileOptionDefineBonesOverwriteQciFileIsChecked` | Allow overwriting an existing `.qci` file of the same name rather than aborting. |
+| Modify QC file | `CompileOptionDefineBonesModifyQcFileIsChecked` | Automatically insert an `$include` line for the generated `.qci` into the `.qc` source file. |
+| No P4 | `CompileOptionNoP4IsChecked` | Pass `-nop4` to suppress Perforce source-control integration in the compiler. |
+| Verbose | `CompileOptionVerboseIsChecked` | Pass `-verbose` to studiomdl for detailed per-bone and per-mesh logging. |
+| Direct compiler options | `CompileOptionsDirectText` | Free-text field for any additional `studiomdl` flags not covered by the checkboxes above (e.g. `-quiet`, `-nox360`). |
+
+<Tip>
+  Always check **No P4** (`-nop4`) if you do not have Perforce installed. Without it, some versions of `studiomdl.exe` will stall waiting for a Perforce connection and appear to hang indefinitely.
+</Tip>
+
+## CompilerInputInfo Fields
+
+The `CompilerInputInfo` class carries the following data to the background compile worker:
+
+| Field | Type | Description |
+|---|---|---|
+| `compilerPathFileName` | `String` | Full path to `studiomdl.exe` from the selected game profile. |
+| `compilerOptions` | `String` | The assembled options string passed to `studiomdl.exe`. |
+| `gamePathFileName` | `String` | Full path to `gameinfo.txt` (Source) or `liblist.gam` (GoldSource). |
+| `qcPathFileName` | `String` | Path to the `.qc` file (or folder, in batch mode). |
+| `customModelFolder` | `String` | Subfolder name used when the output option is **Subfolder of QC input**. |
+| `theCompileMode` | `InputOptions` | Whether Crowbar is compiling a single file, a folder, or a folder tree. |
+
+## How Crowbar Invokes StudioMDL
+
+For Source engine profiles, Crowbar assembles a command line in this form before launching the process:
+
+```shell
+studiomdl.exe -game "<game_path>" <compiler_options> "<model.qc>"
+```
+
+Crowbar sets the working directory to the folder containing the `.qc` file before launching the process, which is required for relative `$include` paths in QC scripts to resolve correctly. After the compiler exits, any produced `.mdl`, `.vtx`, `.vvd`, `.phy`, and `.ani` files are moved from the compiler's output location to the path selected in the **Output path** dropdown.

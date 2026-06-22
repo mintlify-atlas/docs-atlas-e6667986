@@ -1,0 +1,64 @@
+---
+title: "Crowbar: GoldSource & Source Engine Modding Tool"
+sidebarTitle: "Introduction"
+description: "Crowbar is an open-source Windows GUI for GoldSource and Source engine modding. Decompile models, compile QC scripts, manage VPK packages, and publish Workshop content."
+---
+
+Crowbar is a Windows GUI modding tool built for anyone working with Valve's GoldSource and Source engine game assets. Whether you're reverse-engineering a TF2 character model, authoring a new player animation for Half-Life, or publishing a custom prop to the Steam Workshop, Crowbar provides a single, unified interface that ties together the core modding tools — StudioMDL, HLMV, VPK, and the Steam Workshop API — so you don't have to wrangle command-line arguments or scattered utilities by hand.
+
+## What Crowbar Does
+
+Rather than replacing the underlying tools that Valve ships with its games, Crowbar acts as an intelligent front-end to them. You configure your game profiles once (pointing Crowbar at your `gameinfo.txt`, `studiomdl.exe`, and `hlmv.exe`), and then all decompile, compile, view, pack, and publish actions route through those profiles automatically. The result is a consistent workflow across every GoldSource and Source game you mod.
+
+<CardGroup cols={2}>
+  <Card title="Decompile" icon="box-open" href="/tools/decompile">
+    Extract `.mdl` model files back into editable QC scripts and SMD mesh/animation files. Supports batch decompile of entire model folders.
+  </Card>
+  <Card title="Compile" icon="hammer" href="/tools/compile">
+    Send QC scripts to the game's `studiomdl.exe` compiler with a single click, with Crowbar managing paths, arguments, and output locations.
+  </Card>
+  <Card title="Unpack" icon="folder-open" href="/tools/unpack">
+    Extract content from VPK and GMA package archives into individual files for inspection or editing.
+  </Card>
+  <Card title="Pack" icon="box-archive" href="/tools/pack">
+    Bundle a folder of assets into a VPK or GMA package ready for distribution or Workshop upload.
+  </Card>
+  <Card title="Workshop Download" icon="cloud-arrow-down" href="/workshop/download">
+    Download Steam Workshop items directly from inside Crowbar by ID or URL, without opening a browser.
+  </Card>
+  <Card title="Workshop Publish" icon="cloud-arrow-up" href="/workshop/publish">
+    Create new Workshop submissions or update existing ones, complete with title, description, tags, and preview image.
+  </Card>
+</CardGroup>
+
+## Supported MDL Versions
+
+Crowbar can decompile models across virtually the entire history of Valve's two engine families. The version is detected automatically from the file header, but can be overridden manually if needed.
+
+**GoldSource engine** models (Half-Life, Opposing Force, Blue Shift, Counter-Strike 1.6, etc.):
+
+| Version | Notes |
+|---------|-------|
+| v6 | Original Half-Life retail release |
+| v10 | Updated GoldSource format |
+| v2531 | Late GoldSource / WON-era format |
+
+**Source engine** models (Half-Life 2, CS:GO, TF2, L4D2, Portal 2, etc.):
+
+| Version | Notes |
+|---------|-------|
+| v27–v32 | Early Source (Half-Life 2 era) |
+| v35–v38 | Mid-generation Source games |
+| v44–v49 | Orange Box and later (TF2, L4D2, Portal 2) |
+| v52–v53 | Late Source (CS:GO, Dota 2) |
+| v57 | Source engine extended format |
+
+## History and Origin
+
+Crowbar was conceived as a successor to earlier GoldSource and Source model decompilers — specifically MDLDEC (from Jed's Half-Life Model Viewer) and Cannonfodder's MDL Decompiler (bundled in StudioCompiler). Both tools had known correctness issues: MDL Decompiler decompiled animation SMDs rotated 90 degrees and missed certain L4D2 melee weapon animations, while MDLDEC was limited to GoldSource models only.
+
+The name "Crowbar" was chosen deliberately — just as Hammer is Valve's map editor, a crowbar can *break open* a model. Zeq's Crowbar was designed from the ground up to decompile all data that either predecessor could handle, while fixing their bugs and adding Source engine support, a full GUI, and Workshop integration.
+
+<Note>
+  For announcements, downloads, and community support, visit the official Crowbar page at [https://steamcommunity.com/groups/CrowbarTool](https://steamcommunity.com/groups/CrowbarTool). When sharing a link to Crowbar, please use this URL — it points to everything related to the tool.
+</Note>

@@ -1,0 +1,76 @@
+---
+title: "Preview MDL Models in HLMV with Crowbar"
+sidebarTitle: "View"
+description: "Open MDL model files in Half-Life Model Viewer or your game's viewer directly from Crowbar. Supports GoldSource and Source engine models."
+---
+
+Crowbar's View tab opens a compiled `.mdl` file in an external model viewer — typically `hlmv.exe` (Half-Life Model Viewer) or a game's built-in viewer — without requiring you to compile or copy files manually. Crowbar reads the `ViewerPathFileName` from the selected game profile, sets up any necessary temporary paths, launches the viewer process, and waits for it to close before reporting back. Both GoldSource and Source engine models are supported.
+
+<Note>
+  HLMV is a standalone tool that ships with the Source SDK and with many individual games via Steam. It is **not** bundled inside Crowbar. You must have HLMV (or an equivalent viewer) installed and its path configured in the corresponding game profile before the View tab will work. See [Game Setup](/setup/game-setup) for instructions.
+</Note>
+
+## Input
+
+Enter the path to a `.mdl` file in the **MDL file** field, or use the **Browse** button. You can also drag and drop a `.mdl` file onto the field. Crowbar automatically validates that the file exists before enabling the view buttons.
+
+The **Use in Decompile** button copies the currently entered MDL path to the Decompile tab's input field, making it easy to immediately decompile a model you just previewed.
+
+## Game Setup Selector
+
+The **Game setup** dropdown selects which configured game profile to use. Crowbar reads two values from the profile:
+
+| Profile Field | Used For |
+|---|---|
+| `ViewerPathFileName` | Full path to `hlmv.exe` (or equivalent viewer). Crowbar verifies this file exists before launching. |
+| `GamePathFileName` | Path to `gameinfo.txt`. For Source engine profiles, Crowbar passes `-olddialogs -game "<game_path>"` to HLMV so the viewer can find game materials and other assets. |
+
+## View Actions
+
+The View tab provides three launch modes:
+
+<CardGroup cols={3}>
+  <Card title="View" icon="eye">
+    Opens the selected MDL file directly in HLMV by passing the absolute path as a command-line argument. Use this when the model is already inside the game's `models/` folder.
+  </Card>
+  <Card title="View as Replacement" icon="arrows-rotate">
+    Copies the MDL to a temporary `crowbar/models/` folder inside the game directory, patches the model's internal filename and ANI reference, temporarily adds the `crowbar` folder to `gameinfo.txt`'s search paths, then opens HLMV. Crowbar cleans everything up when the viewer closes. Use this when previewing a freshly decompiled or externally stored model that is not in the game's `models/` folder.
+  </Card>
+  <Card title="Open Viewer" icon="window-maximize">
+    Launches HLMV without loading any model, leaving you to open a file from within the viewer itself.
+  </Card>
+</CardGroup>
+
+## Override MDL Version
+
+The **Override MDL version** dropdown — shared with the Decompile tab — forces Crowbar to interpret the `.mdl` header as a specific version when reading model data for the info panel. This does not affect what HLMV receives; it only controls which data Crowbar parses for the overview display. Leave this set to **Do not override** for normal use.
+
+Supported MDL versions range from v06 (early GoldSource) through v57.
+
+## ViewerInfo Fields
+
+The `ViewerInfo` class carries the following data to the background viewer worker:
+
+| Field | Type | Description |
+|---|---|---|
+| `viewerAction` | `ViewerActionType` | One of `GetData`, `ViewModel`, or `OpenViewer` — controls what the background thread does. |
+| `gameSetupSelectedIndex` | `Integer` | Index of the selected game profile in the settings list. |
+| `mdlPathFileName` | `String` | Absolute path to the `.mdl` file to open or read. |
+| `viewAsReplacement` | `Boolean` | `True` when using **View as Replacement** mode. |
+| `viewAsReplacementExtraSubfolder` | `String` | Optional extra subfolder inside `crowbar/models/` to place the temporary replacement file. |
+| `mdlVersionOverride` | `SupportedMdlVersion` | The version override to use when reading model data (`GetData` action). |
+
+## Viewer Type: Preview vs View
+
+Crowbar uses two instances of the `ViewUserControl` — one for the **Preview** tab and one for the **View** tab — distinguished by the `ViewerType` enum:
+
+| Value | Tab | Override Setting Used |
+|---|---|---|
+| `ViewerType.Preview` | Preview tab | `PreviewOverrideMdlVersion` |
+| `ViewerType.View` | View tab | `ViewOverrideMdlVersion` |
+
+Both tabs share the same underlying `Viewer` class and `ViewerInfo` data structure; only the settings keys they read differ.
+
+## Model Data Panel
+
+Before you open HLMV, Crowbar runs a lightweight `GetData` action that reads the `.mdl` header and prints a model overview to the log area. This shows information such as the detected MDL version, bone count, mesh count, and sequence count — useful for quickly inspecting a model without opening the full viewer.

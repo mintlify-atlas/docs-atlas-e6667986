@@ -1,0 +1,82 @@
+---
+title: "Decompile Source Engine Models with Crowbar"
+sidebarTitle: "Decompile"
+description: "Use Crowbar's Decompile tab to convert compiled MDL model files into editable QC scripts, SMD meshes, animation files, and texture bitmaps."
+---
+
+Crowbar's Decompile tab reads compiled `.mdl` model files — along with their companion files (`.ani`, `.vtx`, `.vvd`, `.phy`) — and writes the editable source files back to disk. The output can include the master `.qc` script, reference and LOD mesh SMD files, bone animation SMD files, vertex animation `.vta` files, procedural bone `.vrd` files, and GoldSource texture `.bmp` bitmaps. You can decompile a single model, every model in a folder, or every model across an entire folder tree in one pass.
+
+## Input Options
+
+The input mode dropdown maps to the `InputOptions` enum and controls whether Crowbar operates on one file or many:
+
+| Mode | Description |
+|---|---|
+| **File** | Decompile a single `.mdl` file selected in the input path field. |
+| **Folder** | Decompile all `.mdl` files found directly inside the selected folder. |
+| **Folder and subfolders** | Recursively decompile every `.mdl` file in the folder and all nested subdirectories. |
+
+<Tip>
+  Use **Folder and subfolders** mode to batch-decompile an entire game's `models/` directory in one operation. Combine it with **Folder per model** to keep each model's output neatly separated.
+</Tip>
+
+## Output Path Options
+
+The output path dropdown maps to the `DecompileOutputPathOptions` enum:
+
+| Option | Description |
+|---|---|
+| **Work folder** (default) | Write all decompiled files to the work folder path you specify. |
+| **Subfolder (of MDL input)** | Create a subfolder next to the source `.mdl` file using the subfolder name you provide. |
+
+## Decompile Options
+
+Every checkbox on the Decompile tab corresponds to a settings key in `AppSettings`. All options are off by default unless noted.
+
+| Option | Settings Key | Description |
+|---|---|---|
+| QC file | `DecompileQcFileIsChecked` | Generate the main `.qc` script that describes the model. |
+| Group into QCI files | `DecompileGroupIntoQciFilesIsChecked` | Split sequence declarations into separate `.qci` include files referenced by `$include`. |
+| Skin family on single line | `DecompileQcSkinFamilyOnSingleLineIsChecked` | Write each `$texturegroup` skin family on a single compact line instead of multiple lines. |
+| Only changed materials in texture group | `DecompileQcOnlyChangedMaterialsInTextureGroupLinesIsChecked` | Omit materials that are unchanged from the default skin when writing `$texturegroup` lines. |
+| Include `$definebone` lines | `DecompileQcIncludeDefineBoneLinesIsChecked` | Add explicit `$definebone` entries for every bone in the QC output. |
+| Mixed case keywords | `DecompileQcUseMixedCaseForKeywordsIsChecked` | Write QC keywords in CamelCase (e.g. `$BodyGroup`) instead of all lowercase. |
+| Reference mesh SMD | `DecompileReferenceMeshSmdFileIsChecked` | Extract the model's reference (LOD0) mesh as an `.smd` file. |
+| Remove path from material names | `DecompileRemovePathFromSmdMaterialFileNamesIsChecked` | Strip any folder prefix from material names written into SMD files (e.g. `metal/mymat` → `mymat`). |
+| Non-Valve UV conversion | `DecompileUseNonValveUvConversionIsChecked` | Apply an alternative UV mapping calculation for compatibility with third-party importers that differ from Valve's convention. |
+| Bone animation SMDs | `DecompileBoneAnimationSmdFilesIsChecked` | Extract all bone animation sequences as individual `.smd` files. |
+| Place in anims subfolder | `DecompileBoneAnimationPlaceInSubfolderIsChecked` | Output animation SMD files into an `anims/` subfolder inside the model's output directory. |
+| Texture BMP files | `DecompileTextureBmpFilesIsChecked` | Extract textures embedded in GoldSource `.mdl` files as `.bmp` bitmap images. |
+| LOD mesh SMDs | `DecompileLodMeshSmdFilesIsChecked` | Extract level-of-detail meshes (LOD1, LOD2, …) as separate `.smd` files. |
+| Physics mesh SMD | `DecompilePhysicsMeshSmdFileIsChecked` | Extract the ragdoll or collision mesh from the companion `.phy` file as an `.smd`. |
+| Vertex animation VTA | `DecompileVertexAnimationVtaFileIsChecked` | Extract flex (shape key) animations as a `.vta` file. |
+| Procedural bones VRD | `DecompileProceduralBonesVrdFileIsChecked` | Extract procedural bone rules (jiggle bones, aim constraints, etc.) as a `.vrd` file. |
+| Folder per model | `DecompileFolderForEachModelIsChecked` | In batch mode, create a dedicated subfolder named after each model to hold its output files. |
+| Prefix mesh filenames | `DecompilePrefixFileNamesWithModelNameIsChecked` | Prefix every output filename with the model's name (e.g. `soldier_reference.smd`). |
+| Format for stricter importers | `DecompileStricterFormatIsChecked` | Write SMD files in a more conservative format that is accepted by importers with stricter parsing rules. |
+| Log file | `DecompileLogFileIsChecked` | Write a `.log` text file alongside the decompiled output containing Crowbar's progress messages. |
+| Debug info files | `DecompileDebugInfoFilesIsChecked` | Write additional binary-offset debug files used for diagnosing parse issues in supported MDL versions. |
+| Declare sequence QCI | `DecompileDeclareSequenceQciFileIsChecked` | Generate a separate `.qci` file containing `$declaresequence` entries for all animation sequences. |
+
+## Override MDL Version
+
+The **Override MDL version** dropdown forces Crowbar to interpret the `.mdl` file as a specific MDL version instead of using the version stored in the file header. Supported values range from MDL v06 (GoldSource early) through v57 (Source 2 transitional). Use this when:
+
+- Auto-detection fails and Crowbar reports "Model version not currently supported."
+- The model works in-game or in HLMV but the header version byte is incorrect.
+
+Leave the dropdown set to **Do not override** for normal use.
+
+## Output File Types
+
+After a successful decompile, Crowbar will have written some or all of the following files depending on which options were enabled:
+
+| Extension | Description |
+|---|---|
+| `.qc` | Master model script containing all `$body`, `$sequence`, `$texturegroup`, and other directives. |
+| `.qci` | Optional include file for sequences (`$include`) or `$declaresequence` entries. |
+| `.smd` | Studio Mesh Data file for reference meshes, LOD meshes, animation sequences, and physics meshes. |
+| `.vta` | Vertex animation file for flex/shape-key animations. |
+| `.vrd` | Procedural bone rule file (jiggle bones, aim constraints). |
+| `.bmp` | Extracted GoldSource texture bitmap. |
+| `.log` | Plain-text log of the decompile operation (when **Log file** is checked). |

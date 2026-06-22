@@ -1,20 +1,76 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "Crowbar: GoldSource & Source Engine Modding Tool"
+sidebarTitle: "Home"
+description: "Crowbar is an all-in-one modding tool for GoldSource and Source engine games. Decompile, compile, unpack, and publish game assets with a single GUI application."
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+Crowbar is an open-source Windows application designed for GoldSource and Source engine modders. It bundles everything you need to work with game models and packages — from decompiling `.mdl` files into editable source files, to compiling QC scripts, extracting VPK archives, and publishing to the Steam Workshop.
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Download Crowbar and get it running on Windows in minutes.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Decompile your first model and recompile it back in five steps.
+  </Card>
+  <Card title="Set Up Games" icon="gamepad" href="/setup/game-setup">
+    Configure game profiles so Crowbar knows where your tools live.
+  </Card>
+  <Card title="Core Tools" icon="wrench" href="/tools/decompile">
+    Explore Decompile, Compile, Unpack, Pack, and View.
+  </Card>
+</CardGroup>
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+## What Crowbar Does
+
+Crowbar covers the full modding workflow for both classic GoldSource games (Half-Life, Counter-Strike 1.6) and modern Source engine titles (Left 4 Dead 2, Team Fortress 2, CS:GO, and many more).
+
+<CardGroup cols={3}>
+  <Card title="Decompile" icon="file-export" href="/tools/decompile">
+    Convert compiled `.mdl` files back into QC scripts, SMD meshes, and animation files.
+  </Card>
+  <Card title="Compile" icon="hammer" href="/tools/compile">
+    Run StudioMDL through Crowbar's GUI with per-game compiler options.
+  </Card>
+  <Card title="Unpack" icon="box-open" href="/tools/unpack">
+    Extract content from VPK and GMA packages with search and filter support.
+  </Card>
+  <Card title="Pack" icon="box" href="/tools/pack">
+    Create VPK packages from folders for distribution or deployment.
+  </Card>
+  <Card title="View" icon="eye" href="/tools/view">
+    Preview models in HLMV or your game's model viewer directly from Crowbar.
+  </Card>
+  <Card title="Workshop" icon="steam" href="/workshop/publish">
+    Download and publish Steam Workshop addons without leaving the tool.
+  </Card>
+</CardGroup>
+
+## Getting Started
+
+<Steps>
+  <Step title="Install Crowbar">
+    Download the latest release from the [Steam community page](https://steamcommunity.com/groups/CrowbarTool) and extract it to a folder on your PC. No installer required.
+  </Step>
+  <Step title="Set up a game profile">
+    Open the **Set Up Games** tab and configure a game entry with paths to your game's `gameinfo.txt`, StudioMDL compiler, and HLMV viewer. See [Game Setup](/setup/game-setup).
+  </Step>
+  <Step title="Decompile a model">
+    Switch to the **Decompile** tab, browse to a `.mdl` file, choose an output folder, and click **Decompile**. Crowbar extracts the QC file, SMD meshes, and animations.
+  </Step>
+  <Step title="Edit and recompile">
+    Modify the decompiled source files in your preferred editor, then use the **Compile** tab to run StudioMDL and produce a new `.mdl`.
+  </Step>
+</Steps>
+
+## Supported Engines and Versions
+
+Crowbar supports a wide range of MDL versions across multiple engines:
+
+| Engine | Example Games | MDL Versions |
+|---|---|---|
+| GoldSource | Half-Life, CS 1.6, TFC | v06, v10, v2531 |
+| Source | HL2, TF2, L4D2, CS:GO | v44–v53 |
+| Legacy Source | Portal, EP1/EP2 | v27–v49 |
+
+See the full [Supported MDL Versions](/reference/supported-mdl-versions) reference for the complete list.

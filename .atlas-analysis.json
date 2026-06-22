@@ -1,0 +1,82 @@
+{
+  "projectType": "general",
+  "projectName": "Crowbar",
+  "projectDescription": "Crowbar is a Windows GUI tool for GoldSource and Source engine modding that provides model decompilation, compilation, VPK package unpacking/packing, Steam Workshop publishing, and model viewing in a single application.",
+  "theme": "aspen",
+  "primaryColor": "#949cac",
+  "lightColor": "#10365f",
+  "darkColor": "#cfd5de",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Set Up Games",
+            "pages": [
+              "setup/game-setup",
+              "setup/steam-library"
+            ]
+          },
+          {
+            "group": "Core Tools",
+            "pages": [
+              "tools/decompile",
+              "tools/compile",
+              "tools/unpack",
+              "tools/pack",
+              "tools/view"
+            ]
+          },
+          {
+            "group": "Steam Workshop",
+            "pages": [
+              "workshop/download",
+              "workshop/publish"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/supported-mdl-versions",
+              "reference/file-formats",
+              "reference/settings",
+              "reference/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Decompile GoldSource and Source engine MDL model files into QC, SMD, and related source files",
+    "Compile QC scripts using StudioMDL via a GUI interface with configurable options",
+    "Unpack and pack VPK and GMA game packages",
+    "Browse and preview model files via integrated Half-Life Model Viewer (HLMV) interface",
+    "Download and publish Steam Workshop items",
+    "Support for MDL versions 6 through 53 across GoldSource, Source, and Source 2",
+    "Batch processing for decompiling or compiling multiple files/folders at once",
+    "Per-game setup profiles with configurable tool paths"
+  ],
+  "publicApiSurface": [
+    "Decompile tab — MDL file/folder input, output path options, decompile options (QC, SMD, animations, physics, textures)",
+    "Compile tab — QC file/folder input, game setup selection, StudioMDL options, output path",
+    "Unpack tab — VPK/GMA package input, extract to folder, search within packages",
+    "Pack tab — folder input, create VPK/GMA output packages",
+    "View tab — MDL file preview via external viewer (HLMV or game viewer)",
+    "Download tab — Steam Workshop item ID/link download",
+    "Publish tab — Steam Workshop publish and update items",
+    "Set Up Games tab — manage game profiles (game name, engine, paths for compiler, viewer, packer)",
+    "Options tab — application-wide settings (auto-open, drag-and-drop, context menu)",
+    "Supported MDL versions: 06, 10, 2531, 27-32, 35-38, 44-49, 52, 53",
+    "Supported container types: VPK (v1 and v2), GMA (Garry's Mod Addon)"
+  ]
+}

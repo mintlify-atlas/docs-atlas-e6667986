@@ -1,0 +1,119 @@
+---
+title: "Publish and Update Steam Workshop Addons"
+sidebarTitle: "Publish"
+description: "Use Crowbar's Publish tab to create new Steam Workshop items or update existing ones. Manage titles, descriptions, tags, visibility, and preview images."
+---
+
+The Publish tab is Crowbar's all-in-one interface for submitting addon content to the Steam Workshop. It connects to Steam through the Steamworks SDK via an internal component called SteamPipe, which handles the authentication handshake and upload in a background process while Crowbar's UI stays responsive. You can create brand-new Workshop items, update metadata and content for existing ones, manage visibility, and search your published items — all without leaving Crowbar.
+
+<Warning>
+  Steam must be running and you must own the game you are publishing to before Crowbar can connect to the Workshop. Attempting to publish without an active Steam session or without owning the target game will cause the connection to fail.
+</Warning>
+
+## Supported Games
+
+Crowbar provides per-game tag panels for the following titles. Each game's panel shows only the tags that game's Workshop actually supports.
+
+<CardGroup cols={3}>
+  <Card title="Garry's Mod" icon="gamepad" />
+  <Card title="Left 4 Dead 2" icon="gamepad" />
+  <Card title="Team Fortress 2" icon="gamepad" />
+  <Card title="Black Mesa" icon="gamepad" />
+  <Card title="Source Filmmaker" icon="gamepad" />
+  <Card title="Contagion" icon="gamepad" />
+  <Card title="Entropy Zero 2" icon="gamepad" />
+  <Card title="Estranged: Act I" icon="gamepad" />
+  <Card title="Firefight Reloaded" icon="gamepad" />
+  <Card title="Wilson Chronicles" icon="gamepad" />
+  <Card title="Zombie Panic! Source" icon="gamepad" />
+  <Card title="JBMod" icon="gamepad" />
+  <Card title="Hunt Down The Freeman" icon="gamepad" />
+  <Card title="Military Conflict: Vietnam" icon="gamepad" />
+  <Card title="Codename CURE" icon="gamepad" />
+  <Card title="Anarchy Arcade" icon="gamepad" />
+</CardGroup>
+
+<Note>
+  Each game shows its own tag panel in the item detail area. Switching the game dropdown swaps the tag panel automatically, so the available tag checkboxes always match what the selected game's Workshop accepts.
+</Note>
+
+## Workshop Item Fields
+
+When you select or create an item, the detail panel exposes the following fields drawn directly from the `WorkshopItem` data model.
+
+| Field | Description |
+|-------|-------------|
+| **App ID** | The Steam application ID for the target game. Set automatically when you pick a game from the dropdown. |
+| **Item ID** | The Workshop item's unique numeric identifier. New items show `<draft>` until they are first created on Steam. |
+| **Title** | The display name shown on the Workshop page. |
+| **Description** | The long-form description text for the item's Workshop page. Supports plain text and basic Steam markup. |
+| **Change Note** | A brief note describing what changed in this update (shown in the item's update history). |
+| **Content Folder** | Local path to the folder (or file, for games that support single-file uploads) that contains the addon's content. |
+| **Preview Image** | Local path to the `.jpg` or `.png` image shown as the item's thumbnail on the Workshop. |
+| **Visibility** | Controls who can see the item: **Public**, **Friends-Only**, **Hidden**, or **Unlisted**. New items default to **Hidden** so you can review them before making them public. |
+| **Tags** | Game-specific tags selected from the per-game tag panel (see above). |
+
+## Searching Your Published Items
+
+The item list at the top of the Publish tab can be filtered using the search toolbar. Use the field selector to choose which property to search against.
+
+| Search Field | What It Matches |
+|---|---|
+| **ID** | The exact Workshop item ID |
+| **Owner** | The Steam display name of the item's owner |
+| **Title** | The item's title text |
+| **Description** | The item's description text |
+| **\[All fields\]** | ID, Owner, Title, and Description simultaneously |
+
+## Publishing a New Item
+
+<Steps>
+  <Step title="Select your game">
+    Open the **Publish** tab and choose your target game from the game dropdown at the top. The item list refreshes and the tag panel updates to match.
+  </Step>
+  <Step title="Create the item">
+    Click **Create Item**. Crowbar contacts Steam and reserves a new Workshop item ID, which appears in the Item ID field. The item is initially invisible to other users.
+  </Step>
+  <Step title="Fill in the metadata">
+    Enter a **Title**, **Description**, and optional **Change Note** in the detail panel. These fields map directly to what Workshop visitors will see on the item's page.
+  </Step>
+  <Step title="Set the content folder and preview image">
+    Browse to the local **Content Folder** that contains your addon files. Browse to a **Preview Image** (`.jpg` or `.png`) for the Workshop thumbnail.
+  </Step>
+  <Step title="Choose visibility and tags">
+    Select a **Visibility** setting — leave it as **Hidden** until you are ready to go live, then switch to **Public**. Check the appropriate tags in the per-game tag panel.
+  </Step>
+  <Step title="Click Publish">
+    Click the **Publish** button. Crowbar opens a SteamPipe connection, uploads the content and preview image, and submits the item update. Progress is shown in the log area.
+  </Step>
+</Steps>
+
+## Updating an Existing Item
+
+<Steps>
+  <Step title="Find the item">
+    Use the search bar above the item list to locate the item by ID, title, or other field. Select the matching row to load it into the detail panel.
+  </Step>
+  <Step title="Edit the fields you want to change">
+    Update the **Title**, **Description**, **Content Folder**, **Preview Image**, **Visibility**, or **Tags** as needed. Changed fields are marked with an asterisk (`*`) in the item list.
+  </Step>
+  <Step title="Add a change note">
+    Enter a brief description of what changed in the **Change Note** field. This text appears in the item's update history on the Workshop page.
+  </Step>
+  <Step title="Click Publish">
+    Click **Publish** again to push the changes to Steam. Only the fields you actually modified are sent in the update request.
+  </Step>
+</Steps>
+
+## SteamPipe Integration
+
+Crowbar communicates with the Steamworks SDK through an internal helper process called **CrowbarSteamPipe**. When you click Publish (or perform any Workshop action), Crowbar launches this background process, establishes a named-pipe connection to it, and streams commands and data back and forth. Once the operation finishes the pipe is closed and the helper process exits. This design means Steam stops showing the game's overlay status as soon as a publish operation completes, and it allows the active App ID to be changed between operations without restarting Crowbar.
+
+If the connection fails at startup, Crowbar logs the message:
+
+```text
+Connection to Steam Workshop failed. This most likely means you need to login to Steam
+or you do not own the app or game to which this item belongs.
+```
+
+If a published item requires you to accept an updated Steam Subscriber Agreement, Crowbar displays a warning and shows an **Open Steam Subscriber Agreement** button that opens the acceptance page in your browser.

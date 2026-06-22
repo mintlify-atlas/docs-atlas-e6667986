@@ -1,0 +1,111 @@
+---
+title: "File Formats Supported by Crowbar"
+sidebarTitle: "File Formats"
+description: "Reference guide to all binary file formats that Crowbar can read, write, or convert, including MDL, SMD, QC, VPK, GMA, VTA, and PHY formats."
+---
+
+Crowbar works with three broad categories of files: the source files that feed into StudioMDL (and that the decompiler recreates), the compiled binary files that StudioMDL produces, and the package archives that bundle game content together. Understanding which format serves which role will help you move efficiently between decompiling, editing, and recompiling a model.
+
+## Model Source Files
+
+These are the human-readable (or at least editor-friendly) files that Crowbar **produces** when decompiling and **reads** when compiling. They are passed to StudioMDL to generate the compiled output.
+
+| Format | Extension | Description |
+|---|---|---|
+| QC Script | `.qc` | Master model definition consumed by StudioMDL |
+| QCI Include | `.qci` | Included QC fragment — typically used for sequences or bone definitions |
+| Studiomdl Data | `.smd` | Mesh geometry, skeleton hierarchy, and per-frame bone animation |
+| Vertex Animation | `.vta` | Flex/morph target animation data (facial expressions, shape keys) |
+| Procedural Bones | `.vrd` | Procedural bone rules (jiggle bones, aim constraints, etc.) |
+| Texture Bitmap | `.bmp` | 8-bit indexed texture embedded in GoldSource `.mdl` files |
+
+## Compiled Model Files
+
+These binary files are the output of StudioMDL and the **input** to Crowbar's decompiler. Source engine models are split across multiple files; all must be present in the same folder.
+
+| Format | Extension | Description |
+|---|---|---|
+| Model | `.mdl` | Primary compiled file: bones, mesh references, sequences, attachments, hitboxes, and skin families |
+| Vertex data | `.vvd` | Vertex buffer: positions, normals, UV coordinates, and bone weight data |
+| Hardware topology | `.vtx` | Optimised index buffer strips for Direct3D (`.dx90.vtx`, `.dx80.vtx`, `.sw.vtx`) |
+| Physics | `.phy` | Collision mesh and ragdoll solid definitions |
+| Animation block | `.ani` | External animation data block (present in some games to reduce MDL size) |
+
+## Package Files
+
+Crowbar can pack and unpack two Valve/Garry's Mod archive formats from the **Unpack** and **Pack** tabs.
+
+| Format | Extension | Description |
+|---|---|---|
+| Valve Pack v1 | `.vpk` | Single-file VPK archive (older format) |
+| Valve Pack v2 | `*_dir.vpk` + `*_000.vpk` | Split directory-and-data VPK (current Valve format) |
+| Garry's Mod Addon | `.gma` | Single-file GMA addon archive used by the Steam Workshop |
+
+---
+
+## QC Script Format
+
+A `.qc` file is a plain-text script that StudioMDL reads line by line to understand how to assemble a model. Crowbar's decompiler generates a `.qc` automatically from the data inside the compiled `.mdl`. The key commands you will see in a decompiled QC are:
+
+| Command | Purpose |
+|---|---|
+| `$modelname` | Output path for the compiled `.mdl` (relative to the game's `models/` folder) |
+| `$cdmaterials` | Material search path — where VMTs and VTFs are looked up |
+| `$body` / `$model` | Declares a mesh reference SMD file |
+| `$sequence` | Defines an animation sequence, referencing one or more animation SMD files |
+| `$attachment` | Defines a named attachment point on a bone |
+| `$hboxset` / `$hbox` | Declares a hitbox set and individual hitbox volumes |
+| `$texturegroup` | Defines skin families (material swaps) |
+| `$include` | References a `.qci` file to be merged into the QC at compile time |
+
+When the **Group into QCI files** decompile option is enabled, Crowbar splits sequence definitions into a separate `.qci` file and references it from the main `.qc` using `$include`.
+
+---
+
+## SMD Format
+
+SMD (Studiomdl Data) is a plain-text format that encodes both skeleton data and, optionally, mesh geometry. Crowbar produces three distinct varieties depending on the source data:
+
+<CardGroup cols={3}>
+  <Card title="Reference SMD" icon="cube">
+    Contains the full mesh geometry — vertex positions, normals, UV coordinates, and bone weights. One reference SMD is produced per body group mesh, plus additional ones for each LOD level.
+  </Card>
+  <Card title="Animation SMD" icon="film">
+    Contains only bone transform data (position and rotation) for each frame of an animation sequence. No mesh geometry is present. One file is produced per sequence.
+  </Card>
+  <Card title="Physics SMD" icon="shield">
+    Contains the simplified collision mesh extracted from the `.phy` file. Used to re-create the `$collisionmodel` block when recompiling.
+  </Card>
+</CardGroup>
+
+A minimal reference SMD looks like this:
+
+```text
+version 1
+nodes
+  0 "ValveBiped.Bip01" -1
+  1 "ValveBiped.Bip01_Pelvis" 0
+end
+skeleton
+  time 0
+    0  0.000000 0.000000 0.000000  0.000000 0.000000 0.000000
+    1  0.000000 5.211000 0.000000  0.000000 0.000000 0.000000
+end
+triangles
+material_name
+  0  0.0 0.0 0.0  0.0 0.0 1.0  0.5 0.5  1  0 1.0
+  ...
+end
+```
+
+---
+
+## VTA Format
+
+Vertex animation (`.vta`) files store per-vertex deltas for flex targets — the Source engine's system for facial expressions and other morph shapes. Each named flex in the QC maps to a set of vertex offsets in the VTA. Crowbar produces a `.vta` when the decompile option **Vertex animation VTA file** is checked and the model contains flex data.
+
+---
+
+## PHY Format
+
+The `.phy` file stores the physics model used for ragdolls and prop collision. It contains one or more "solids" (convex hulls), each associated with a bone. Crowbar reads the binary VPHY data and exports the geometry as a physics mesh SMD, which can then be referenced via `$collisionmodel` in the QC.

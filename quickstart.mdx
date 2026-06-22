@@ -1,47 +1,125 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with Crowbar in 5 Steps"
+sidebarTitle: "Quickstart"
+description: "Learn to decompile a Source engine model and recompile it with Crowbar. This guide takes you from a raw MDL file to edited source files and back in minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This guide walks you through the core Crowbar workflow: take a compiled `.mdl` model file, decompile it into editable QC and SMD source files, make changes, and recompile back into a working model. By the end you'll understand the full round-trip and be ready to explore Crowbar's more advanced options.
 
 ## Prerequisites
 
-Before you begin, you must have:
+- Crowbar is installed and running. See [Installation](/installation) if you haven't set it up yet.
+- You have a Source or GoldSource game installed with its modding tools (`studiomdl.exe` and `hlmv.exe`) available.
+- You have a `.mdl` file you want to edit (for example, `models/player/soldier.mdl` from Team Fortress 2).
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+## The Decompile → Edit → Compile Workflow
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Set up a game profile">
+    Before you can compile, Crowbar needs to know where your game lives. Click the **Set Up Games** tab and add a new game profile. Fill in:
 
-    ```bash
-    npm install your-package
-    ```
+    - **Game name** — a label for this profile, e.g. `Team Fortress 2`
+    - **Engine** — select `Source` for Source engine games, or `GoldSource` for Half-Life 1-era games
+    - **Game info file** — path to your game's `gameinfo.txt`, e.g. `C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\tf\gameinfo.txt`
+    - **Compiler** — path to `studiomdl.exe`, e.g. `...\bin\studiomdl.exe`
+    - **Viewer** — path to `hlmv.exe`, e.g. `...\bin\hlmv.exe`
+
+    For a detailed walkthrough of every game profile field, see the [Game Setup guide](/setup/game-setup).
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
+  <Step title="Select a model to decompile">
+    Click the **Decompile** tab. In the **MDL input** field, click **Browse** and navigate to the `.mdl` file you want to decompile — for example:
+
     ```
+    C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\tf\models\player\soldier.mdl
+    ```
+
+    Crowbar reads the model header to detect the MDL format version automatically. The input field also accepts a **folder path** if you want to decompile every `.mdl` file in that folder at once.
+
+    <Tip>
+      To decompile multiple models in one pass, type or paste a folder path into the MDL input field instead of a single file. Crowbar will iterate over every `.mdl` it finds in that folder (and optionally its subfolders) and decompile them all with the same output settings. This is ideal for extracting an entire game's player model set.
+    </Tip>
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
+  <Step title="Choose output options">
+    Under **Output**, select where Crowbar should write the decompiled files:
+
+    - **Work folder** — a single folder you've designated as your working directory
+    - **Subfolder (of MDL input)** — creates a new subfolder next to the source `.mdl` file
+
+    Then review the **decompile options** checkboxes. The most important ones for a standard workflow are:
+
+    | Option | What it produces |
+    |--------|-----------------|
+    | **QC file** | The main `.qc` script that describes the model |
+    | **Reference mesh SMD file** | The visible geometry as a `.smd` mesh file |
+    | **Bone animation SMD files** | One `.smd` per animation sequence |
+    | **Physics mesh SMD file** | Collision mesh (Source engine models) |
+    | **Texture BMP files** | Embedded textures (GoldSource models) |
+
+    Leave **QC file**, **Reference mesh SMD file**, and **Bone animation SMD files** checked for a typical editing session.
+  </Step>
+
+  <Step title="Run the decompiler">
+    Click **Decompile**. Crowbar reads the `.mdl` file (and its companion `.ani`, `.vtx`, `.vvd`, and `.phy` files if present) and writes the output files to your chosen folder.
+
+    For the TF2 Soldier example, you'll see output like:
+
     ```
+    soldier\
+    ├── soldier.qc
+    ├── soldier_ref.smd
+    ├── soldier_LOD1.smd
+    ├── soldier_LOD2.smd
+    ├── soldier_phys.smd
+    └── anims\
+        ├── idle.smd
+        ├── run_all_class.smd
+        └── ... (one file per animation sequence)
+    ```
+
+    The **Output** list at the bottom of the Decompile tab shows every file written. Click any file in the list to open it in your default text or 3D editor.
+  </Step>
+
+  <Step title="Compile the model">
+    Once you've made your edits to the `.qc` or `.smd` files, switch to the **Compile** tab.
+
+    1. In the **QC input** field, browse to your edited `.qc` file, e.g. `soldier\soldier.qc`
+    2. In the **Game setup** dropdown, select the profile you created in Step 1
+    3. Under **Output**, choose where the compiled `.mdl` should go — the default **Game's "models" folder** places it directly into the game directory so you can test it immediately
+    4. Click **Compile**
+
+    Crowbar calls `studiomdl.exe` with the correct arguments and working directory for your game. The compiled `.mdl`, `.vtx`, and `.vvd` files appear in the output location, and the results are shown in the output list at the bottom of the tab.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Example QC File
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+The QC file produced by the decompiler describes the model's name, materials, geometry, and animations. Here is a minimal example of what a decompiled QC looks like:
+
+```qc
+$modelname "player/soldier.mdl"
+$cdmaterials "models/player/soldier/"
+
+$body "Body" "soldier_ref.smd"
+
+$surfaceprop "flesh"
+
+$sequence "idle" {
+    "anims/idle.smd"
+    fps 30
+    loop
+}
+
+$sequence "run_all_class" {
+    "anims/run_all_class.smd"
+    fps 30
+    loop
+}
+```
+
+You can edit this file directly — change `$modelname` to redirect output, add `$lod` blocks for level-of-detail meshes, adjust `$surfaceprop`, or insert new `$sequence` entries pointing to additional SMD animation files.
+
+<Note>
+  For a full reference of every decompile option — including LOD meshes, vertex animations, procedural bones, and MDL version overrides — see the [Decompile tab reference](/tools/decompile).
+</Note>

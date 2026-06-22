@@ -1,0 +1,72 @@
+---
+title: "Supported MDL Model Versions in Crowbar"
+sidebarTitle: "MDL Versions"
+description: "Complete reference of GoldSource and Source engine MDL versions supported by Crowbar's decompiler, with associated games and engine families."
+---
+
+Every compiled model file (`.mdl`) stores a version number in its binary header, which tells the engine — and Crowbar — how to interpret the data layout that follows. Crowbar's decompiler reads this version number automatically and selects the correct internal parser. In rare cases, such as a hex-edited file or an unusual port of a game, you can override the auto-detected version using the **Override MDL version** dropdown on the Decompile tab.
+
+## Supported Versions
+
+The `SupportedMdlVersion` enum in Crowbar's source enumerates every version the decompiler recognises. The table below maps each version to its engine family and the games where that format is most commonly found.
+
+| MDL Version | Engine | Representative Games |
+|---|---|---|
+| v06 | GoldSource | Half-Life (original), Team Fortress Classic |
+| v10 | GoldSource | Half-Life: Opposing Force, Counter-Strike 1.6 |
+| v2531 | GoldSource | Vampire: The Masquerade – Bloodlines |
+| v27 | Source | Half-Life 2 (early builds) |
+| v28 | Source | Half-Life 2 |
+| v29 | Source | Half-Life 2: Episode One |
+| v30 | Source | Half-Life 2: Episode Two |
+| v31 | Source | Portal |
+| v32 | Source | Team Fortress 2 (early builds) |
+| v35 | Source | Left 4 Dead |
+| v36 | Source | Left 4 Dead 2 |
+| v37 | Source | Alien Swarm |
+| v38 | Source | Portal 2 |
+| v44 | Source | Team Fortress 2 |
+| v45 | Source | CS:GO (early) |
+| v46 | Source | CS:GO |
+| v47 | Source | Dota 2 (early) |
+| v48 | Source | Dota 2 |
+| v49 | Source | CS:GO (updated hitbox format) |
+| v52 | Source | Source Filmmaker extras |
+| v53 | Source | Newer Source titles |
+| v57 | Source | Latest supported variant |
+
+<Note>
+  The **"Do not override"** option (the default) tells Crowbar to read the version directly from the `.mdl` file header. You only need to change this if auto-detection is failing — for example, after a file has been manually edited or reconstructed.
+</Note>
+
+## Companion Files
+
+A compiled Source engine model is split across several files that must all be present in the same folder for Crowbar to decompile successfully. GoldSource models are self-contained in a single `.mdl` file, but some also reference separate texture and sequence-group `.mdl` files.
+
+| File | Extension | Purpose |
+|---|---|---|
+| Model | `.mdl` | Bones, mesh references, sequences, materials, and attachments |
+| Vertex data | `.vvd` | Vertex positions, normals, texture coordinates, and bone weights |
+| Hardware topology | `.dx90.vtx` / `.dx80.vtx` / `.sw.vtx` | GPU-optimised mesh strips and index buffers |
+| Physics | `.phy` | Ragdoll and collision geometry (optional) |
+| Animation block | `.ani` | External animation data used by some games (optional) |
+
+Crowbar reports a specific error code when a required companion file cannot be found:
+
+- `ErrorRequiredAniFileNotFound` — `.ani` file is missing
+- `ErrorRequiredVtxFileNotFound` — `.vtx` file is missing
+- `ErrorRequiredVvdFileNotFound` — `.vvd` file is missing
+
+To resolve these, copy all companion files into the same directory as the `.mdl` before decompiling.
+
+<Tip>
+  If you extracted a model from a VPK or GMA archive and decompilation fails with a missing-file error, use Crowbar's **Unpack** tab first to extract the entire `models/` subtree — this ensures all companion files land in the same output folder.
+</Tip>
+
+## Version Override Behaviour
+
+The version override dropdown is available on both the **Decompile** tab and the **Preview** / **View** tabs. When set to anything other than "Do not override", Crowbar substitutes the selected version number for the one stored in the file header and applies the matching parser. This is useful when:
+
+- A file has been hex-patched and its header version no longer matches its actual data layout.
+- You are working with a community-modified build of a game that ships an unusual version number.
+- Crowbar reports `ErrorInvalidMdlFileId` and you believe the data is actually valid but the magic bytes are wrong.

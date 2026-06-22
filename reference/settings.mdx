@@ -1,0 +1,137 @@
+---
+title: "Crowbar Application Settings Reference"
+sidebarTitle: "Settings"
+description: "Reference for all Crowbar application settings including window state, auto-open behavior, drag-and-drop options, and per-tab defaults stored in the XML settings file."
+---
+
+Crowbar stores all of its persistent state in an XML file named `Crowbar Settings.xml`, located in the user's application data folder at `%APPDATA%\ZeqMacaw\Crowbar <version>\`. The file is created automatically on first launch with default values, and updated every time Crowbar closes normally. Settings cover window geometry, the last-used paths for each tab, per-tab processing options, game profiles, and Steam configuration. You can back this file up or share it between machines.
+
+<Note>
+  Settings are written to disk automatically when Crowbar exits. If the process is killed unexpectedly, any changes made during that session may not be saved. A backup of the settings file from the previous version is created automatically during a version upgrade (e.g., `Crowbar Settings [backup 2024-05-01-120000].xml`).
+</Note>
+
+---
+
+## Settings File Location
+
+The settings file path is constructed at runtime as:
+
+```
+%APPDATA%\ZeqMacaw\Crowbar <major>.<minor>\Crowbar Settings.xml
+```
+
+For example, for Crowbar 0.74:
+
+```
+C:\Users\<YourName>\AppData\Roaming\ZeqMacaw\Crowbar 0.74\Crowbar Settings.xml
+```
+
+---
+
+## Window & Application
+
+These settings control the main window position and state restored at startup.
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `WindowLocation` | Point | `0, 0` | Top-left position of the main window on screen |
+| `WindowSize` | Size | `800 × 600` | Width and height of the main window |
+| `WindowState` | FormWindowState | `Normal` | Window state: Normal, Maximized, or Minimized |
+| `MainWindowSelectedTabIndex` | Integer | `0` | Index of the last active tab (0 = Set Up Games) |
+| `AppIsSingleInstance` | Boolean | `false` | When `true`, only one Crowbar process is allowed at a time |
+
+---
+
+## Decompile Settings
+
+Settings for the **Decompile** tab — input paths, output locations, file-generation options, and the MDL version override.
+
+| Setting | Default | Description |
+|---|---|---|
+| `DecompileMdlPathFileName` | `""` | Last-used MDL input file or folder path |
+| `DecompileOutputFolderOption` | `WorkFolder` | Output location mode: Work folder or Subfolder (of MDL input) |
+| `DecompileOutputSubfolderName` | `"decompiled <ver>"` | Name of the auto-created subfolder when using Subfolder mode |
+| `DecompileOutputFullPath` | Documents folder | Custom absolute output path |
+| `DecompileMode` | `File` | Input mode: File, Folder, or Folder and subfolders |
+| `DecompileFolderForEachModelIsChecked` | `false` | Create a separate output subfolder for each model |
+| `DecompileStricterFormatIsChecked` | `false` | Write SMD files in a stricter format for maximum compatibility |
+| `DecompileLogFileIsChecked` | `false` | Write a decompile log file alongside the output |
+| `DecompileOverrideMdlVersion` | `DoNotOverride` | Force Crowbar to parse the MDL as a specific version |
+| `DecompileQcFileIsChecked` | `true` | Generate a `.qc` script file |
+| `DecompileGroupIntoQciFilesIsChecked` | `false` | Split sequences into a separate `.qci` include file |
+| `DecompileReferenceMeshSmdFileIsChecked` | `true` | Generate reference mesh SMD files |
+| `DecompileBoneAnimationSmdFilesIsChecked` | `true` | Generate animation SMD files |
+| `DecompileBoneAnimationPlaceInSubfolderIsChecked` | `true` | Place animation SMD files in an `anims/` subfolder |
+| `DecompileLodMeshSmdFilesIsChecked` | `true` | Generate LOD mesh SMD files |
+| `DecompilePhysicsMeshSmdFileIsChecked` | `true` | Generate physics mesh SMD file from `.phy` data |
+| `DecompileVertexAnimationVtaFileIsChecked` | `true` | Generate vertex animation `.vta` file |
+| `DecompileProceduralBonesVrdFileIsChecked` | `true` | Generate procedural bones `.vrd` file |
+| `DecompileTextureBmpFilesIsChecked` | `true` | Extract embedded GoldSource textures as `.bmp` files |
+
+---
+
+## Compile Settings
+
+Settings for the **Compile** tab — QC input path, output location, and active game profile.
+
+| Setting | Default | Description |
+|---|---|---|
+| `CompileQcPathFileName` | `""` | Last-used QC input file or folder path |
+| `CompileOutputFolderOption` | `GameModelsFolder` | Output mode: Game's "models" folder, Work folder, or Subfolder |
+| `CompileOutputSubfolderName` | `"compiled <ver>"` | Subfolder name when using Subfolder output mode |
+| `CompileGameSetupSelectedIndex` | `0` | Index of the active game profile in the game setup list |
+| `CompileMode` | `File` | Input mode: File, Folder, or Folder and subfolders |
+| `CompileOptionNoP4IsChecked` | `true` | Pass `-nop4` to StudioMDL (disables Perforce integration) |
+| `CompileOptionVerboseIsChecked` | `true` | Pass `-verbose` to StudioMDL for detailed output |
+| `CompileSourceLogFileIsChecked` | `false` | Write a compile log file (Source engine) |
+| `CompileGoldSourceLogFileIsChecked` | `false` | Write a compile log file (GoldSource engine) |
+
+---
+
+## Unpack Settings
+
+Settings for the **Unpack** tab — package type, input path, output location, and display options.
+
+| Setting | Default | Description |
+|---|---|---|
+| `UnpackContainerType` | `VPK` | Package format to unpack: VPK or GMA |
+| `UnpackPackagePathFolderOrFileName` | `""` | Last-used package file or folder path |
+| `UnpackOutputFolderOption` | `SameFolder` | Output location mode: Same folder, Subfolder, Work folder, or Game's addons folder |
+| `UnpackOutputSubfolderName` | `"unpacked <ver>"` | Subfolder name when using Subfolder output mode |
+| `UnpackByteUnitsOption` | `Bytes` | File size display format: Bytes, Binary (KiB/MiB), or Decimal (KB/MB) |
+| `UnpackSearchText` | `""` | Last-used text in the package content search filter |
+| `UnpackFolderForEachPackageIsChecked` | `false` | Create a separate output folder for each package |
+| `UnpackKeepFullPathIsChecked` | `false` | Preserve the full internal path structure when extracting |
+| `UnpackLogFileIsChecked` | `false` | Write an unpack log file |
+
+---
+
+## Steam Settings
+
+Settings that locate the Steam installation and library paths used for game profile discovery and Workshop publishing.
+
+| Setting | Default | Description |
+|---|---|---|
+| `SteamAppPathFileNameUnprocessed` | `C:\Program Files (x86)\Steam\Steam.exe` | Path to the Steam executable |
+| `SteamLibraryPaths` | `[]` | List of additional Steam library root folders |
+
+---
+
+## Options Tab Settings
+
+The **Options** tab configures how Crowbar responds when you open or drag-and-drop a file onto it, and whether context menu entries are registered in Windows Explorer.
+
+<CardGroup cols={2}>
+  <Card title="Auto-Open" icon="folder-open">
+    Controls which tab Crowbar navigates to and what action it takes when a file is opened via double-click, the command line, or a file association. Separate options exist for `.vpk`, `.gma`, `.mdl`, `.qc`, and folders.
+  </Card>
+  <Card title="Drag and Drop" icon="hand">
+    Controls the default action when files or folders are dragged onto the main Crowbar window. Mirrors the Auto-Open options but applies to drag-and-drop events.
+  </Card>
+  <Card title="Context Menu" icon="list">
+    When enabled, Crowbar registers shell context menu entries so that right-clicking a `.mdl`, `.qc`, `.vpk`, or folder in Windows Explorer offers Crowbar actions directly.
+  </Card>
+  <Card title="Single Instance" icon="window">
+    Governed by `AppIsSingleInstance`. When checked, opening a second Crowbar window instead routes the file to the already-running instance.
+  </Card>
+</CardGroup>
