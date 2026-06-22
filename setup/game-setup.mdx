@@ -1,5 +1,5 @@
 ---
-title: "Configure Game Profiles in Crowbar"
+title: "Configure Game Profiles for GoldSource and Source in Crowbar"
 sidebarTitle: "Game Setup"
 description: "Set up per-game profiles in Crowbar with paths to gameinfo.txt, StudioMDL, HLMV, Hammer, and VPK packer. Required before using Compile, View, or Pack tabs."
 ---
@@ -12,15 +12,15 @@ Each `GameSetup` entry stores the following fields:
 
 | Field | Description |
 |---|---|
-| **Game Name** | A human-readable display name for the profile (e.g. `Left 4 Dead 2`). Used in all drop-down selectors across Crowbar's tabs. |
-| **Game Engine** | The engine family the game uses. One of `GoldSource`, `Source`, or `Source 2`. Controls which file types and tool filters are shown in browse dialogs. |
-| **Game Path / gameinfo.txt** | Full path to the game's configuration file. For Source engine games this is `gameinfo.txt`; for GoldSource it is `liblist.gam`; for Source 2 it is `gameinfo.gi`. Crowbar derives the game directory from the folder containing this file. |
-| **Game App / Executable** | Path to the game's own `.exe` (e.g. `left4dead2.exe`). Used when launching the game directly from Crowbar. |
-| **Game App Options** | Optional command-line arguments appended when Crowbar launches the game executable. Leave blank if not needed. |
-| **Compiler (studiomdl.exe)** | Path to the model compiler. Required by the Compile tab. |
-| **Viewer (hlmv.exe)** | Path to the Half-Life Model Viewer. Required by the View tab. |
-| **Mapping Tool (hammer.exe)** | Path to the Hammer map editor. Optional; used when opening the mapping tool from within Crowbar. |
-| **Packer (vpk.exe / gmad.exe)** | Path to the VPK or GMA packer/unpacker tool. Required by the Pack and Unpack tabs. Only shown for Source engine profiles. |
+| **GameName** | A human-readable display name for the profile (e.g. `Left 4 Dead 2`). Used in all drop-down selectors across Crowbar's tabs. |
+| **GameEngine** | The engine family the game uses. Either `GoldSource` or `Source`. Controls which file types and tool filters are shown in browse dialogs. |
+| **GamePathFileName** | Full path to the game's configuration file. For Source engine games this is `gameinfo.txt`; for GoldSource it is `liblist.gam`. Crowbar derives the game directory from the folder containing this file. |
+| **GameAppPathFileName** | Path to the game's own `.exe` (e.g. `left4dead2.exe`). Used when launching the game directly from Crowbar. |
+| **GameAppOptions** | Optional command-line arguments appended when Crowbar launches the game executable. Leave blank if not needed. |
+| **CompilerPathFileName** | Path to the model compiler. Required by the Compile tab. |
+| **ViewerPathFileName** | Path to the Half-Life Model Viewer. Required by the View tab. |
+| **MappingToolPathFileName** | Path to the Hammer map editor. Optional; used when opening the mapping tool from within Crowbar. |
+| **PackerPathFileName** | Path to the VPK or GMA packer/unpacker tool. Required by the Pack and Unpack tabs. Only shown for Source engine profiles. |
 
 <Note>
   Game profiles are sorted alphabetically by game name in the drop-down lists. Each tab (Compile, View, Pack) maintains its **own** active profile selection independently — you can have Crowbar compile against one game while viewing models in another without changing either tab's settings.
@@ -33,6 +33,7 @@ When you create a new profile, Crowbar pre-fills all fields with Left 4 Dead 2 d
 | File | Default example path |
 |---|---|
 | `gameinfo.txt` | `C:\Program Files (x86)\Steam\steamapps\common\left 4 dead 2\left4dead2\gameinfo.txt` |
+| `left4dead2.exe` | `C:\Program Files (x86)\Steam\steamapps\common\left 4 dead 2\left4dead2.exe` |
 | `studiomdl.exe` | `C:\Program Files (x86)\Steam\steamapps\common\left 4 dead 2\bin\studiomdl.exe` |
 | `hlmv.exe` | `C:\Program Files (x86)\Steam\steamapps\common\left 4 dead 2\bin\hlmv.exe` |
 | `hammer.exe` | `C:\Program Files (x86)\Steam\steamapps\common\left 4 dead 2\bin\hammer.exe` |
@@ -58,7 +59,6 @@ When you create a new profile, Crowbar pre-fills all fields with Left 4 Dead 2 d
 
     - **GoldSource** — Half-Life, Counter-Strike 1.6, Team Fortress Classic, and other GoldSource titles. The game path field will prompt for `liblist.gam`.
     - **Source** — Half-Life 2, Left 4 Dead 2, Team Fortress 2, Garry's Mod, and most modern Valve titles. The game path field prompts for `gameinfo.txt`, and the Packer field is shown.
-    - **Source 2** — Dota 2 (with its modding tools), Half-Life: Alyx. The game path field prompts for `gameinfo.gi`.
   </Step>
 
   <Step title="Browse to the game configuration file">
@@ -66,7 +66,6 @@ When you create a new profile, Crowbar pre-fills all fields with Left 4 Dead 2 d
 
     - Source engine: `gameinfo.txt` (inside the game's mod folder, e.g. `…\left4dead2\gameinfo.txt`)
     - GoldSource: `liblist.gam` (inside the game's mod folder)
-    - Source 2: `gameinfo.gi`
 
     ```text
     Example (Source):
@@ -82,7 +81,7 @@ When you create a new profile, Crowbar pre-fills all fields with Left 4 Dead 2 d
     - **studiomdl.exe** — model compiler, used by the Compile tab
     - **hlmv.exe** — model viewer, used by the View tab
     - **hammer.exe** — map editor (optional)
-    - **vpk.exe** or **gmad.exe** — packer/unpacker, used by the Pack and Unpack tabs
+    - **vpk.exe** or **gmad.exe** — packer/unpacker, used by the Pack and Unpack tabs (Source engine only)
 
     ```text
     Example paths for Left 4 Dead 2:
@@ -105,7 +104,7 @@ When you create a new profile, Crowbar pre-fills all fields with Left 4 Dead 2 d
     Click **Clone** to duplicate the currently selected game profile. The copy is named `Clone of <original name>` and can be renamed and adjusted independently. Useful when setting up multiple games that share the same `bin\` folder, such as different Source SDK branches.
   </Card>
   <Card title="Delete a Profile" icon="trash">
-    Select the profile you want to remove in the drop-down and click **Delete**. Crowbar will not allow deleting the last remaining profile. If a profile is actively selected in another tab (e.g. Compile), switching to that tab will automatically fall back to the nearest valid profile index.
+    Select the profile you want to remove in the drop-down and click **Delete**. Crowbar will not allow deleting the last remaining profile — the Delete button is disabled when only one profile exists.
   </Card>
 </CardGroup>
 

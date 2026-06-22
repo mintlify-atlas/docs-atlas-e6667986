@@ -1,7 +1,7 @@
 ---
-title: "Pack Folders into VPK Archives with Crowbar"
+title: "Pack Game Files into VPK and GMA Archives with Crowbar"
 sidebarTitle: "Pack"
-description: "Create VPK packages from local folders using Crowbar's Pack tab. Wraps Valve's vpk.exe tool and supports both single-file and split-archive output."
+description: "Create VPK packages or Garry's Mod GMA addons from local folders using Crowbar's Pack tab. Wraps Valve's vpk.exe and gmad.exe tools."
 ---
 
 Crowbar's Pack tab creates VPK archives (or Garry's Mod GMA addons) from a local folder by invoking the packer executable configured in the selected game profile. Crowbar sets the correct working directory for the packer, captures its output, and then moves the resulting package file to the output location you choose. Both single-file VPK output and multi-file (split) VPK output are supported.
@@ -34,23 +34,22 @@ The output path dropdown maps to the `PackOutputPathOptions` enum:
 | Option | Description |
 |---|---|
 | **Work folder** | Move the finished package file to the work folder path you specify. |
-| **Parent folder** | Leave the finished package in the same directory as the input folder (the default for most workflows). |
+| **Parent folder** (default) | Leave the finished package in the same directory as the input folder. |
 
 ## Pack Options
 
 ### Crowbar Options
 
-| Option | Settings Key | Description |
-|---|---|---|
-| Log file | `PackLogFileIsChecked` | Write a `pack-log.txt` file recording the packer's output next to the input folder. |
+| Option | Settings Key | Default | Description |
+|---|---|---|---|
+| Log file | `PackLogFileIsChecked` | Off | Write a log file recording the packer's output next to the input folder. |
 
 ### Packer Options
 
-| Option | Settings Key | Description |
-|---|---|---|
-| Multi-file VPK | `PackOptionMultiFileVpkIsChecked` | Create a split-archive VPK with a `_dir.vpk` directory file and numbered `_000.vpk`, `_001.vpk` data files. Crowbar generates an internal file list and passes it to `vpk.exe -v -M a`. |
-| Ignore whitelist warnings | `PackOptionIgnoreWhitelistWarningsIsChecked` | Pass `-warninvalid` to `gmad.exe` to suppress warnings about files that are not on Garry's Mod's allowed file list. GMA packing only. |
-| Direct packer options | `PackOptionsText` | Free-text field for any additional flags to pass to `vpk.exe` or `gmad.exe` before the input folder argument. |
+| Option | Settings Key | Default | Description |
+|---|---|---|---|
+| Multi-file VPK | `PackOptionMultiFileVpkIsChecked` | Off | Create a split-archive VPK with a `_dir.vpk` directory file and numbered data files. Crowbar passes `-M a` to `vpk.exe` along with a `filelist.txt` response file. |
+| Ignore whitelist warnings | `PackOptionIgnoreWhitelistWarningsIsChecked` | Off | Pass `-warninvalid` to `gmad.exe` to suppress warnings about files not on Garry's Mod's allowed file list. GMA packing only. |
 
 ### GMA-Specific Fields (Garry's Mod)
 
@@ -69,10 +68,16 @@ For standard single-file VPK output, Crowbar changes the working directory to th
 vpk.exe "<folder_name>"
 ```
 
-For multi-file VPK output (`-M` mode), Crowbar first writes a `filelist.txt` containing relative paths of every file inside the input folder, then runs:
+For multi-file VPK output, Crowbar passes `-M a` along with the folder name and a `filelist.txt` response file:
 
 ```shell
-vpk.exe -v -M a "<folder_name>" @..\filelist.txt
+vpk.exe -M a "<folder_name>" @filelist.txt
 ```
 
-After the packer exits, Crowbar moves the resulting `.vpk` file (or `_dir.vpk` and all `_???.vpk` data files for multi-file output) to the configured output path and deletes any temporary list files it created.
+For Garry's Mod GMA output, Crowbar runs `gmad.exe create -folder` with the input folder:
+
+```shell
+gmad.exe create -folder "<folder_name>"
+```
+
+After the packer exits, Crowbar moves the resulting package file to the configured output path and deletes any temporary list files it created.

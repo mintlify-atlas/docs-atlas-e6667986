@@ -1,13 +1,13 @@
 ---
-title: "Crowbar Application Settings Reference"
+title: "Crowbar Application Settings Reference and Defaults"
 sidebarTitle: "Settings"
-description: "Reference for all Crowbar application settings including window state, auto-open behavior, drag-and-drop options, and per-tab defaults stored in the XML settings file."
+description: "Reference for all Crowbar settings including window state, auto-open behavior, drag-and-drop options, and per-tab defaults stored in the XML settings file."
 ---
 
 Crowbar stores all of its persistent state in an XML file named `Crowbar Settings.xml`, located in the user's application data folder at `%APPDATA%\ZeqMacaw\Crowbar <version>\`. The file is created automatically on first launch with default values, and updated every time Crowbar closes normally. Settings cover window geometry, the last-used paths for each tab, per-tab processing options, game profiles, and Steam configuration. You can back this file up or share it between machines.
 
 <Note>
-  Settings are written to disk automatically when Crowbar exits. If the process is killed unexpectedly, any changes made during that session may not be saved. A backup of the settings file from the previous version is created automatically during a version upgrade (e.g., `Crowbar Settings [backup 2024-05-01-120000].xml`).
+  Settings are written to disk automatically when Crowbar exits. If the process is killed unexpectedly, any changes made during that session may not be saved.
 </Note>
 
 ---
@@ -94,7 +94,6 @@ Settings for the **Unpack** tab — package type, input path, output location, a
 
 | Setting | Default | Description |
 |---|---|---|
-| `UnpackContainerType` | `VPK` | Package format to unpack: VPK or GMA |
 | `UnpackPackagePathFolderOrFileName` | `""` | Last-used package file or folder path |
 | `UnpackOutputFolderOption` | `SameFolder` | Output location mode: Same folder, Subfolder, Work folder, or Game's addons folder |
 | `UnpackOutputSubfolderName` | `"unpacked <ver>"` | Subfolder name when using Subfolder output mode |

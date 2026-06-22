@@ -1,10 +1,10 @@
 ---
-title: "Publish and Update Steam Workshop Addons"
+title: "Publish and Update Steam Workshop Addons with Crowbar"
 sidebarTitle: "Publish"
 description: "Use Crowbar's Publish tab to create new Steam Workshop items or update existing ones. Manage titles, descriptions, tags, visibility, and preview images."
 ---
 
-The Publish tab is Crowbar's all-in-one interface for submitting addon content to the Steam Workshop. It connects to Steam through the Steamworks SDK via an internal component called SteamPipe, which handles the authentication handshake and upload in a background process while Crowbar's UI stays responsive. You can create brand-new Workshop items, update metadata and content for existing ones, manage visibility, and search your published items — all without leaving Crowbar.
+The Publish tab is Crowbar's all-in-one interface for submitting addon content to the Steam Workshop. It connects to Steam through the Steamworks SDK via an internal helper process called CrowbarSteamPipe, which handles the connection and upload in the background while Crowbar's UI stays responsive. You can create brand-new Workshop items, update metadata and content for existing ones, manage visibility, and search your published items — all without leaving Crowbar.
 
 <Warning>
   Steam must be running and you must own the game you are publishing to before Crowbar can connect to the Workshop. Attempting to publish without an active Steam session or without owning the target game will cause the connection to fail.
@@ -48,7 +48,7 @@ When you select or create an item, the detail panel exposes the following fields
 | **Title** | The display name shown on the Workshop page. |
 | **Description** | The long-form description text for the item's Workshop page. Supports plain text and basic Steam markup. |
 | **Change Note** | A brief note describing what changed in this update (shown in the item's update history). |
-| **Content Folder** | Local path to the folder (or file, for games that support single-file uploads) that contains the addon's content. |
+| **Content Folder or File** | Local path to the folder or file that contains the addon's content. The label adjusts per game: some games accept only a folder, others only a file, and some accept either. |
 | **Preview Image** | Local path to the `.jpg` or `.png` image shown as the item's thumbnail on the Workshop. |
 | **Visibility** | Controls who can see the item: **Public**, **Friends-Only**, **Hidden**, or **Unlisted**. New items default to **Hidden** so you can review them before making them public. |
 | **Tags** | Game-specific tags selected from the per-game tag panel (see above). |
@@ -71,8 +71,8 @@ The item list at the top of the Publish tab can be filtered using the search too
   <Step title="Select your game">
     Open the **Publish** tab and choose your target game from the game dropdown at the top. The item list refreshes and the tag panel updates to match.
   </Step>
-  <Step title="Create the item">
-    Click **Create Item**. Crowbar contacts Steam and reserves a new Workshop item ID, which appears in the Item ID field. The item is initially invisible to other users.
+  <Step title="Add a draft item">
+    Click the **Add** button in the item list toolbar. Crowbar creates a new local draft entry with the Item ID shown as `<draft>`. No Steam connection is made at this point — the item is reserved on Steam only when you click **Publish**.
   </Step>
   <Step title="Fill in the metadata">
     Enter a **Title**, **Description**, and optional **Change Note** in the detail panel. These fields map directly to what Workshop visitors will see on the item's page.
@@ -112,8 +112,7 @@ Crowbar communicates with the Steamworks SDK through an internal helper process 
 If the connection fails at startup, Crowbar logs the message:
 
 ```text
-Connection to Steam Workshop failed. This most likely means you need to login to Steam
-or you do not own the app or game to which this item belongs.
+Connection to Steam Workshop failed. This most likely means you need to login to Steam or you do not own the app or game to which this item belongs.
 ```
 
 If a published item requires you to accept an updated Steam Subscriber Agreement, Crowbar displays a warning and shows an **Open Steam Subscriber Agreement** button that opens the acceptance page in your browser.

@@ -1,5 +1,5 @@
 ---
-title: "Compile QC Scripts into MDL Models with Crowbar"
+title: "Compile QC Model Scripts into MDL Files with Crowbar"
 sidebarTitle: "Compile"
 description: "Run Valve's StudioMDL compiler through Crowbar's Compile tab. Configure output paths, compiler flags, and game profiles to build MDL model files from QC source."
 ---
@@ -42,23 +42,23 @@ These checkboxes are managed by Crowbar itself and appear in the `InitCrowbarOpt
 
 | Option | Settings Key | Description |
 |---|---|---|
-| GoldSource log file | `CompileGoldSourceLogFileIsChecked` | Save the full compiler stdout/stderr output to a `<modelname> compile-log.txt` file next to the `.qc` (GoldSource engine only). |
+| GoldSource log file | `CompileGoldSourceLogFileIsChecked` | Save the full compiler stdout/stderr output to a log file next to the `.qc` (GoldSource engine only). |
 | Source engine log file | `CompileSourceLogFileIsChecked` | Same as above for Source engine profiles. |
 
 ### Compiler Pass-through Options
 
-These are passed directly to `studiomdl.exe` and appear in `InitCompilerOptions()`:
+These are passed directly to `studiomdl.exe` and appear in `InitCompilerOptions()`. **No P4** and **Verbose** are enabled by default.
 
-| Option | Settings Key | Description |
-|---|---|---|
-| Define bones | `CompileOptionDefineBonesIsChecked` | Capture `$definebone` lines printed by the compiler and process them after compilation. Source engine only. |
-| Create define bones QCI | `CompileOptionDefineBonesCreateFileIsChecked` | Write the captured `$definebone` lines into a `.qci` file. |
-| Define bones QCI filename | `CompileOptionDefineBonesQciFileName` | The filename (without path) to use for the generated `.qci` file. |
-| Overwrite define bones QCI | `CompileOptionDefineBonesOverwriteQciFileIsChecked` | Allow overwriting an existing `.qci` file of the same name rather than aborting. |
-| Modify QC file | `CompileOptionDefineBonesModifyQcFileIsChecked` | Automatically insert an `$include` line for the generated `.qci` into the `.qc` source file. |
-| No P4 | `CompileOptionNoP4IsChecked` | Pass `-nop4` to suppress Perforce source-control integration in the compiler. |
-| Verbose | `CompileOptionVerboseIsChecked` | Pass `-verbose` to studiomdl for detailed per-bone and per-mesh logging. |
-| Direct compiler options | `CompileOptionsDirectText` | Free-text field for any additional `studiomdl` flags not covered by the checkboxes above (e.g. `-quiet`, `-nox360`). |
+| Option | Settings Key | Default | Description |
+|---|---|---|---|
+| Define bones | `CompileOptionDefineBonesIsChecked` | Off | Capture `$definebone` lines printed by the compiler and process them after compilation. Source engine only. |
+| Create define bones QCI | `CompileOptionDefineBonesCreateFileIsChecked` | Off | Write the captured `$definebone` lines into a `.qci` file. |
+| Define bones QCI filename | `CompileOptionDefineBonesQciFileName` | `DefineBones` | The filename (without path) to use for the generated `.qci` file. |
+| Overwrite define bones QCI | `CompileOptionDefineBonesOverwriteQciFileIsChecked` | Off | Allow overwriting an existing `.qci` file of the same name rather than aborting. |
+| Modify QC file | `CompileOptionDefineBonesModifyQcFileIsChecked` | Off | Automatically insert an `$include` line for the generated `.qci` into the `.qc` source file. |
+| No P4 | `CompileOptionNoP4IsChecked` | **On** | Pass `-nop4` to suppress Perforce source-control integration in the compiler. |
+| Verbose | `CompileOptionVerboseIsChecked` | **On** | Pass `-verbose` to studiomdl for detailed per-bone and per-mesh logging. |
+| Direct compiler options | `CompileOptionsDirectText` | *(empty)* | Free-text field for any additional `studiomdl` flags not covered by the checkboxes above (e.g. `-quiet`, `-nox360`). |
 
 <Tip>
   Always check **No P4** (`-nop4`) if you do not have Perforce installed. Without it, some versions of `studiomdl.exe` will stall waiting for a Perforce connection and appear to hang indefinitely.
@@ -76,6 +76,8 @@ The `CompilerInputInfo` class carries the following data to the background compi
 | `qcPathFileName` | `String` | Path to the `.qc` file (or folder, in batch mode). |
 | `customModelFolder` | `String` | Subfolder name used when the output option is **Subfolder of QC input**. |
 | `theCompileMode` | `InputOptions` | Whether Crowbar is compiling a single file, a folder, or a folder tree. |
+| `modelAbsolutePathFileName` | `String` | Absolute path to the compiled model output file. |
+| `result` | `String` | Status or error message returned after the compile process completes. |
 
 ## How Crowbar Invokes StudioMDL
 

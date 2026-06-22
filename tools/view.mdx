@@ -1,5 +1,5 @@
 ---
-title: "Preview MDL Models in HLMV with Crowbar"
+title: "Open and View MDL Model Files in HLMV with Crowbar"
 sidebarTitle: "View"
 description: "Open MDL model files in Half-Life Model Viewer or your game's viewer directly from Crowbar. Supports GoldSource and Source engine models."
 ---
@@ -43,7 +43,7 @@ The View tab provides three launch modes:
 
 ## Override MDL Version
 
-The **Override MDL version** dropdown — shared with the Decompile tab — forces Crowbar to interpret the `.mdl` header as a specific version when reading model data for the info panel. This does not affect what HLMV receives; it only controls which data Crowbar parses for the overview display. Leave this set to **Do not override** for normal use.
+The **Override MDL version** dropdown forces Crowbar to interpret the `.mdl` header as a specific version when reading model data for the info panel. This does not affect what HLMV receives; it only controls which data Crowbar parses for the overview display. Leave this set to **Do not override** for normal use.
 
 Supported MDL versions range from v06 (early GoldSource) through v57.
 
@@ -53,7 +53,7 @@ The `ViewerInfo` class carries the following data to the background viewer worke
 
 | Field | Type | Description |
 |---|---|---|
-| `viewerAction` | `ViewerActionType` | One of `GetData`, `ViewModel`, or `OpenViewer` — controls what the background thread does. |
+| `viewerAction` | `ViewerInfo.ViewerActionType` | One of `GetData`, `ViewModel`, or `OpenViewer` — controls what the background thread does. |
 | `gameSetupSelectedIndex` | `Integer` | Index of the selected game profile in the settings list. |
 | `mdlPathFileName` | `String` | Absolute path to the `.mdl` file to open or read. |
 | `viewAsReplacement` | `Boolean` | `True` when using **View as Replacement** mode. |

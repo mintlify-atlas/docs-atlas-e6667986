@@ -1,21 +1,19 @@
 ---
-title: "Unpack VPK and GMA Packages with Crowbar"
+title: "Extract Files from VPK and GMA Packages with Crowbar"
 sidebarTitle: "Unpack"
-description: "Use Crowbar's Unpack tab to extract files from VPK archives and GMA addons. Supports Valve VPK v1/v2, VTMB variants, and Garry's Mod GMA format."
+description: "Use Crowbar's Unpack tab to extract files from VPK archives and GMA addons. Supports Valve VPK and Garry's Mod GMA package formats."
 ---
 
-Crowbar's Unpack tab reads game package files and extracts their contents to a folder on disk. It supports Valve's VPK format used by Source engine games (versions 1 and 2, including the Vampire: The Masquerade – Bloodlines variant) as well as Garry's Mod GMA addon archives. Before extracting anything, you can list the contents of a package to browse its file tree, or use the search field to filter entries by name.
+Crowbar's Unpack tab reads game package files and extracts their contents to a folder on disk. It supports Valve's VPK format used by Source engine games as well as Garry's Mod GMA addon archives. Before extracting anything, you can list the contents of a package to browse its file tree, or use the search field to filter entries by name.
 
 ## Supported Package Types
 
-The `ContainerType` enum and the GamePackage subsystem recognise the following archive formats:
+The `ContainerType` enum defines the two package formats Crowbar can read:
 
-| Format | Extension | Description |
-|---|---|---|
-| **VPK v1** | `.vpk` | Original single-file or split-archive Valve Pack format used in older Source games. |
-| **VPK v2** | `.vpk` | Updated split-archive format with embedded checksums, used in CS:GO, Dota 2, and later Source games. |
-| **VTMB VPK** | `.vpk` | Variant of the VPK format used by Vampire: The Masquerade – Bloodlines, identified by a different header. |
-| **GMA** | `.gma` | Garry's Mod Addon archive created by `gmad.exe`. |
+| Format | Enum Value | Extension | Description |
+|---|---|---|---|
+| **VPK** | `ContainerType.VPK` | `.vpk` | Valve Pack format used by Source engine games, including single-file and split-archive variants. |
+| **GMA** | `ContainerType.GMA` | `.gma` | Garry's Mod Addon archive created by `gmad.exe`. |
 
 <Note>
   A split VPK package consists of a directory file (`pak01_dir.vpk`) and one or more data files (`pak01_000.vpk`, `pak01_001.vpk`, …). Always point Crowbar at the `_dir.vpk` file — it will locate the data files automatically.
@@ -45,14 +43,14 @@ The output path dropdown maps to the `UnpackOutputPathOptions` enum:
 
 | Option | Description |
 |---|---|
-| **Same folder (as Package)** | Extract files into the same folder that contains the package file. |
+| **Same folder (as Package)** (default) | Extract files into the same folder that contains the package file. |
 | **Subfolder (of Package)** | Create a named subfolder next to the package and extract into it. |
 | **Work folder** | Extract to the work folder path you specify. |
 | **Game's addons folder** | Extract to the `addons/` folder of the selected game profile (useful for GMA addons). |
 
 ## Unpack Actions
 
-The three action buttons map to values in the `PackageAction` enum:
+The action buttons map to values in the `PackageAction` enum:
 
 | Action | Enum Value | Description |
 |---|---|---|
@@ -82,8 +80,8 @@ Right-click the list view and choose **Toggle Size Units** to cycle through thes
 
 ## Additional Unpack Options
 
-| Option | Settings Key | Description |
-|---|---|---|
-| Folder for each package | `UnpackFolderForEachPackageIsChecked` | Create a subfolder named after each package and extract its contents there. |
-| Keep full path | `UnpackKeepFullPathIsChecked` | Preserve the full internal directory structure when extracting (e.g. `models/props/crate.mdl`). |
-| Log file | `UnpackLogFileIsChecked` | Write a log file to the output folder recording which entries were unpacked. |
+| Option | Settings Key | Default | Description |
+|---|---|---|---|
+| Folder for each package | `UnpackFolderForEachPackageIsChecked` | Off | Create a subfolder named after each package and extract its contents there. |
+| Keep full path | `UnpackKeepFullPathIsChecked` | Off | Preserve the full internal directory structure when extracting (e.g. `models/props/crate.mdl`). |
+| Log file | `UnpackLogFileIsChecked` | Off | Write a log file to the output folder recording which entries were unpacked. |
